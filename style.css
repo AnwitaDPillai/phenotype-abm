@@ -94,17 +94,35 @@ body {
     text-align: justify;
 }
 
+/* Fixed equation container: Forces downward expansion and syntax wrapping */
 .equation-box {
     background: rgba(0, 0, 0, 0.02);
     border-left: 2px solid var(--text-muted);
     padding: 0.75rem;
-    font-family: monospace;
-    font-size: 0.8rem;
     margin: 1rem 0;
     color: var(--text-charcoal);
+    
+    max-width: 100%;
+    overflow-x: visible;       /* Eradicates horizontal scroll clipping completely */
+    overflow-y: visible;       /* Allows container to expand downward */
+    white-space: normal;       /* Tells long strings to break onto the next line */
+    word-break: break-word;    /* Snaps heavy formula structures to avoid margins */
+    box-sizing: border-box;
 }
 
-/* Academic Academic Payoff Data Table */
+/* Forces MathJax objects to adapt cleanly inside the sidebar layout boundaries */
+.equation-box .MathJax, 
+.prose-block .MathJax {
+    display: inline-block !important;
+    max-width: 100% !important;
+    white-space: normal !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+    text-align: left !important;
+    box-sizing: border-box;
+}
+
+/* Academic Payoff Data Table */
 .matrix-table {
     width: 100%;
     border-collapse: collapse;
@@ -253,14 +271,11 @@ body {
 .metric-box {
     display: flex;
     flex-direction: column;
+    margin-bottom: 0.4rem;
 }
 
 .metric-box:nth-child(2), .metric-box:nth-child(4) {
     grid-column: span 1;
-}
-/* Force long metrics or sliders to break layout widths gracefully */
-.metric-box {
-    margin-bottom: 0.4rem;
 }
 
 .metric-label {
@@ -300,7 +315,7 @@ body {
 }
 
 /* Diagnostic sub-canvas ports */
-.diagnostic-container {
+.canvas-container.diagnostic-container {
     background: var(--surface-white);
     padding: 0.5rem;
     display: flex;
