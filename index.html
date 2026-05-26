@@ -3,19 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phenotype: An ABM</title>
+    <title>Phenotype: Non-Linear Socio-Ecological ABM</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <main class="sandbox-container">
-        <header class="sim-header">
-            <h1>PHENOTYPE</h1>
-            <p class="subtitle">An Evolutionary Agent-Based Model</p>
-        </header>
+    <div class="dashboard-grid">
+        
+        <aside class="panel theory-panel">
+            <header class="brand-header">
+                <h1>PHENOTYPE</h1>
+                <p class="classification">RESEARCH SPECIFICATION // MODEL v2.0-ALGO</p>
+            </header>
+            
+            <section class="prose-block">
+                <h2>1. Abstract</h2>
+                <p>
+                    Phenotype is a state-of-the-art spatial, non-linear Agent-Based Model (ABM) analyzing the emergence of cooperative structures under continuous environmental, genetic, and institutional feedback loops. By abandoning rigid, discrete strategy classifications, this platform simulates strategy evolution along a continuous epigenetic spectrum mapped across a spatial thermodynamic matrix.
+                </p>
+            </section>
 
-        <canvas id="simCanvas" width="600" height="600"></canvas>
-    </main>
+            <section class="prose-block">
+                <h2>2. Epigenetic Genomic Strand</h2>
+                <p>Each autonomous entity possesses an embedded chromosome vector determining behavioral phenotypes based on metabolic stress markers:</p>
+                <div class="equation-box">
+                    $$\mathbf{G} = [G_1(\text{Altruism}), G_2(\text{Forgiveness}), G_3(\text{Desperation})]$$
+                </div>
+                <p>
+                    When an agent's internal reserve drops below the threshold dictated by $G_3$, its social framework undergoes a non-linear state mutation, switching dynamically to parasitic extraction models to secure biological survival.
+                </p>
+            </section>
+
+            <section class="prose-block">
+                <h2>3. Non-Zero-Sum Payoff Matrix</h2>
+                <p>Spatial proximity thresholds ($\delta \le 9\text{px}$) trigger localized structural iterations of the classical Game Matrix:</p>
+                <table class="matrix-table">
+                    <thead>
+                        <tr>
+                            <th>Actor Actions</th>
+                            <th>Cooperate ($\mathbf{C}$)</th>
+                            <th>Defect ($\mathbf{D}$)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Cooperate ($\mathbf{C}$)</strong></td>
+                            <td>Reward: +3 / +3</td>
+                            <td>Sucker: +0 / +5</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Defect ($\mathbf{D}$)</strong></td>
+                            <td>Temptation: +5 / +0</td>
+                            <td>Punishment: +1 / +1</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="prose-block">
+                <h2>4. Graph Topology Defenses</h2>
+                <p>
+                    Mutual cooperative links establish dynamic spatial graph edges inside a real-time adjacency matrix. High-density kinship clusters propagate threat vectors across the network topology, triggering defensive pre-emptive lockouts against incoming predatory defector vectors.
+                </p>
+            </section>
+        </aside>
+
+        <main class="panel simulation-panel">
+            <div class="canvas-container main-sim-container">
+                <canvas id="simCanvas" width="600" height="600"></canvas>
+            </div>
+            
+            <div class="control-bar">
+                <span class="control-title">MACRO-SYSTEM INTERVENTIONS:</span>
+                <button class="btn btn-danger" id="brushFamine">Induce Thermodynamic Famine</button>
+                <button class="btn btn-warning" id="brushPlague">Inject Epigenetic Mutation</button>
+                <button class="btn btn-info" id="bankIntervene">Force Central Bank Subsidy</button>
+                <button class="btn btn-secondary" id="simReset">Reinitialize System Matrix</button>
+            </div>
+        </main>
+
+        <aside class="panel telemetry-panel">
+            <header class="section-header">
+                <h2>System Telemetry</h2>
+                <span class="status-indicator pulses">SYSTEM ONLINE</span>
+            </header>
+            <hr class="panel-divider">
+            
+            <div class="metric-container">
+                <div class="metric-box">
+                    <span class="metric-label">CHRONOLOGICAL CYCLE (GENERATION)</span>
+                    <span class="metric-value" id="valGen">0001</span>
+                </div>
+
+                <div class="metric-box">
+                    <span class="metric-label">SYSTEMIC INEQUALITY (GINI COEFFICIENT)</span>
+                    <span class="metric-value monospace" id="valGini">0.00</span>
+                    <div class="progress-track"><div class="progress-fill" id="barGini" style="width: 0%"></div></div>
+                </div>
+
+                <div class="metric-box">
+                    <span class="metric-label">ACTIVE SURVIVING BIOMASS (POPULATION)</span>
+                    <span class="metric-value" id="valPop">000</span>
+                </div>
+
+                <div class="metric-box">
+                    <span class="metric-label">CENTRAL RESERVE ASSETS (TAX POOL)</span>
+                    <span class="metric-value ESCROW" id="valBank">00.00e</span>
+                </div>
+            </div>
+
+            <hr class="panel-divider">
+            <h2>Economic Distribution Mapping</h2>
+            
+            <div class="canvas-container diagnostic-container">
+                <canvas id="lorenzCanvas" width="250" height="180"></canvas>
+            </div>
+
+            <hr class="panel-divider">
+            <h2>Genomic Demographic Ratios</h2>
+            
+            <div class="telemetry-bar-stack">
+                <div class="demo-row">
+                    <span class="demo-tag"><span class="dot-indicator crimson"></span> Dominant Defectors</span>
+                    <span class="demo-pct monospace" id="pctDef">33%</span>
+                </div>
+                <div class="demo-row">
+                    <span class="demo-tag"><span class="dot-indicator forest"></span> Pure Cooperators</span>
+                    <span class="demo-pct monospace" id="pctCop">33%</span>
+                </div>
+                <div class="demo-row">
+                    <span class="demo-tag"><span class="dot-indicator cobalt"></span> Reciprocal Cooperators</span>
+                    <span class="demo-pct monospace" id="pctRec">33%</span>
+                </div>
+            </div>
+
+            <div class="phase-space-section">
+                <span class="metric-label">PHASE-SPACE TRAJECTORY ORBIT (LOTKA-VOLTERRA SPECTRUM)</span>
+                <div class="canvas-container diagnostic-container matrix-mini-map">
+                    <canvas id="phaseCanvas" width="250" height="150"></canvas>
+                </div>
+            </div>
+        </aside>
+
+    </div>
 
     <script src="app.js"></script>
 </body>

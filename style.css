@@ -1,36 +1,358 @@
-body {
-    background-color: #f1efe9; /* Warm literary book-leaf ivory */
-    color: #2c2a29;            /* High-contrast charcoal text */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
+/* --- 1. SYSTEM CORES & VARIABLES --- */
+:root {
+    --bg-ivory: #f1efe9;
+    --surface-white: #ffffff;
+    --text-charcoal: #2c2a29;
+    --text-muted: #6e6b64;
+    --border-line: #d7d3c9;
+    
+    /* Active Visualization Spectrum */
+    --color-crimson: #b83b2e;
+    --color-forest: #3e7d5a;
+    --color-cobalt: #3a6186;
+    --color-gold: #c29238;
 }
 
-.sandbox-container {
+body {
+    background-color: var(--bg-ivory);
+    color: var(--text-charcoal);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+    letter-spacing: -0.01em;
+}
+
+/* --- 2. THREE-COLUMN MASTER LAYOUT DOCK --- */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 340px 1fr 320px;
+    height: 100vh;
+    width: 100vw;
+    box-sizing: border-box;
+}
+
+.panel {
+    padding: 1.75rem;
+    box-sizing: border-box;
+    overflow-y: auto;
+    border-right: 1px solid var(--border-line);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Scrollbar refinement for internal panels */
+.panel::-webkit-scrollbar {
+    width: 4px;
+}
+.panel::-webkit-scrollbar-thumb {
+    background: var(--border-line);
+    border-radius: 2px;
+}
+
+/* --- 3. LEFT PANEL: ACADEMIC SPECIFICATION SPEC --- */
+.theory-panel {
+    background-color: var(--bg-ivory);
+}
+
+.brand-header h1 {
+    font-family: "Times New Roman", Times, Baskerville, Georgia, serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin: 0;
+    color: var(--text-charcoal);
+}
+
+.classification {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    margin-top: 0.3rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--text-charcoal);
+    padding-bottom: 0.5rem;
+}
+
+.prose-block h2 {
+    font-family: "Times New Roman", Times, Georgia, serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 0.6rem;
+    letter-spacing: 0.02em;
+}
+
+.prose-block p {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: #444240;
+    margin-top: 0;
+    margin-bottom: 1.2rem;
+    text-align: justify;
+}
+
+.equation-box {
+    background: rgba(0, 0, 0, 0.02);
+    border-left: 2px solid var(--text-muted);
+    padding: 0.75rem;
+    font-family: monospace;
+    font-size: 0.8rem;
+    margin: 1rem 0;
+    color: var(--text-charcoal);
+}
+
+/* Academic Academic Payoff Data Table */
+.matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.72rem;
+    margin: 1.2rem 0;
+}
+
+.matrix-table th, .matrix-table td {
+    border: 1px solid var(--border-line);
+    padding: 8px 10px;
     text-align: center;
 }
 
-.sim-header h1 {
-    font-family: serif; /* Gives that literary/academic emphasis */
-    font-size: 2rem;
-    letter-spacing: 0.1em;
+.matrix-table th {
+    background-color: rgba(0, 0, 0, 0.03);
+    font-weight: 600;
+    color: var(--text-charcoal);
+}
+
+/* --- 4. CENTER PANEL: MAIN VISUAL KINETIC VIEWPORT --- */
+.simulation-panel {
+    background-color: #faf9f6; /* Premium clinical bone white */
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.canvas-container {
+    box-shadow: 0 20px 50px rgba(44, 42, 41, 0.08);
+    border: 1px solid var(--border-line);
+    background-color: var(--surface-white);
+    line-height: 0;
+    border-radius: 2px;
+}
+
+.main-sim-container canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Real-Time Interactive Controller Layout */
+.control-bar {
+    margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    width: 100%;
+    max-width: 600px;
+}
+
+.control-title {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    width: 100%;
+    text-align: center;
     margin-bottom: 0.2rem;
 }
 
-.sim-header .subtitle {
-    font-size: 0.9rem;
+.btn {
+    background: var(--surface-white);
+    border: 1px solid var(--border-line);
+    padding: 8px 14px;
+    font-size: 0.72rem;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #6e6b64;
-    margin-top: 0;
-    margin-bottom: 2rem;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-canvas {
-    background-color: #ffffff; /* Stark white paper sheet for the grid */
-    border: 1px solid #d7d3c9;  /* Muted brand border line */
-    box-shadow: 0 10px 30px rgba(44, 42, 41, 0.05);
+.btn:hover {
+    background: var(--text-charcoal);
+    color: var(--bg-ivory);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* --- 5. RIGHT PANEL: REAL-TIME STATISTICS DOCK --- */
+.telemetry-panel {
+    border-right: none;
+    background-color: #eae7df; /* Deep ivory tint for statistics */
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section-header h2 {
+    font-family: "Times New Roman", Times, Georgia, serif;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0;
+}
+
+.status-indicator {
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: var(--color-forest);
+    background: rgba(62, 125, 94, 0.1);
+    padding: 4px 8px;
+    border-radius: 10px;
+}
+
+/* Pulsing heart node */
+.pulses {
+    position: relative;
+}
+.pulses::before {
+    content: '';
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    background: var(--color-forest);
+    border-radius: 50%;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+.panel-divider {
+    border: none;
+    border-top: 1px solid var(--border-line);
+    margin: 1.2rem 0;
+    width: 100%;
+}
+
+/* Metric Display Blocks */
+.metric-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.metric-box {
+    display: flex;
+    flex-direction: column;
+}
+
+.metric-box:nth-child(2), .metric-box:nth-child(4) {
+    grid-column: span 1;
+}
+/* Force long metrics or sliders to break layout widths gracefully */
+.metric-box {
+    margin-bottom: 0.4rem;
+}
+
+.metric-label {
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    margin-bottom: 0.2rem;
+    text-transform: uppercase;
+}
+
+.metric-value {
+    font-family: monospace;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-charcoal);
+}
+
+.metric-value.ESCROW {
+    color: var(--color-gold);
+}
+
+/* Statistical Bars */
+.progress-track {
+    width: 100%;
+    height: 3px;
+    background: var(--border-line);
+    margin-top: 4px;
+    border-radius: 1px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--text-charcoal);
+    width: 0%;
+    transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Diagnostic sub-canvas ports */
+.diagnostic-container {
+    background: var(--surface-white);
+    padding: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0.5rem 0;
+}
+
+/* Demographic Data Row Matrix */
+.telemetry-bar-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.demo-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+}
+
+.demo-tag {
+    display: flex;
+    align-items: center;
+    color: #3d3b39;
+}
+
+.dot-indicator {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.dot-indicator.crimson { background-color: var(--color-crimson); }
+.dot-indicator.forest { background-color: var(--color-forest); }
+.dot-indicator.cobalt { background-color: var(--color-cobalt); }
+
+.demo-pct {
+    font-weight: 700;
+}
+
+.phase-space-section {
+    margin-top: 1.2rem;
+}
+
+.matrix-mini-map {
+    background: #2c2a29 !important; /* Matrix black radar scope for Phase Space */
+    border-color: #2c2a29;
+}
+
+.monospace {
+    font-family: monospace;
 }
