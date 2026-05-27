@@ -1,89 +1,57 @@
-# Phenotype: An Evolutionary Agent-Based Model
+# Phenotype: An ABM
 
-An open-source computational sandbox translating game theory and evolutionary dynamics into fluid visual simulation.
+An open-source computational sandbox translating game theory, continuous genetics, and macroeconomics into a fluid, high-fidelity visual simulation.
 
-**Live Sandbox:** [Deploying Soon]
+**Live Sandbox:** [Deploying via GitHub Pages Soon]
 
 ---
 
 ## The Core Concept
 
-Phenotype simulates an ecosystem of hundreds of autonomous agents moving across a 2D grid. When agents collide, they interact according to the **Iterated Prisoner's Dilemma** and the **Tragedy of the Commons**. Over successive generations, strategies compete, mutate, and either survive or die out based on accumulated resources.
+Phenotype simulates an ecosystem of hundreds of autonomous agents interacting across an evaporating biochemical plane. When spatial collisions trigger, agents execute non-zero-sum exchanges modeled on the **Iterated Prisoner's Dilemma** and the **Tragedy of the Commons**. 
 
-Each agent carries a behavioral phenotype—a strategy that determines how it responds to others. The simulation does not prescribe outcomes; it surfaces emergent dynamics. Under what conditions do cooperative strategies thrive? When does exploitation collapse the system? How does copying your neighbor's behavior reshape the population?
+Strategy selection is entirely fluid. Instead of relying on hardcoded, discrete choice profiles, agent behaviors adapt continuously to multi-variable genetic vectors, local environmental signals, and resource constraints.
 
-The UI uses a minimalist, print-editorial layout consistent with my broader design language—dark text on warm ivory, serif typography, clean data presentation. No arcade aesthetics. Just the raw behavior of the system, rendered legibly.
+The interface implements an editorial print aesthetic—charcoal typography, crisp data presentation, and warm ivory surfaces—presenting complex multi-canvas analytics without arcade-style distraction.
 
 ---
 
 ## Architectural Mechanics
 
-The simulation runs on a single `requestAnimationFrame` loop processing three phases per frame:
+The engine runs at a locked 60 FPS by implementing high-performance spatial algorithms and structured runtime phases per animation frame:
 
-1. **Spatial Kinetics:** Agent positions updated via continuous velocity vectors. Boundary collisions resolved. Agent-to-agent proximity mapped for interaction detection.
-2. **Game-Theoretic Payoffs:** When two agents overlap, their strategies determine the resource exchange using a standard Prisoner's Dilemma payoff matrix.
-3. **Macro-Evolutionary Pressure:** At the end of each generation, agents below a resource threshold are pruned. High-resource agents replicate, passing down their strategy phenotype. A small mutation rate introduces random strategy assignments.
-
----
-
-## Strategy Phenotypes
-
-Three archetypes, visually distinguished by color:
-
-| Strategy | Behavior | Color |
-|:---|:---|:---|
-| **The Cheater (Defector)** | Always defects. Extracts maximum resources from cooperators but performs poorly in isolation. | Red |
-| **The Generous (Cooperator)** | Always cooperates. Builds mutual gains with other cooperators but is vulnerable to exploitation. | Green |
-| **The Copycat (Tit-for-Tat)** | Begins by cooperating, then mirrors the opponent's last move in subsequent encounters. Enforces accountability without aggression. | Blue |
+1. **Spatial Grid Partitioning ($O(N)$ Complexity):** Instead of evaluating collisions via brute-force nested loops ($O(N^2)$), the canvas is divided into a localized cell grid based on interaction radii. Agents only evaluate coordinates against immediate neighbors, maximizing performance.
+2. **Kinetics & Scaled Wealth Inequality:** Coordinates update via independent velocity vectors. Physical node radii scale dynamically in real time ($r \propto \text{Capital}$), physically mapping wealth concentration onto the grid field.
+3. **Macro-Evolutionary Sweeps:** Every 500 frames, evolutionary selection executes. Agents with exhausted resource scores are pruned. The top 20% elite earners replicate, splitting their asset capital to produce offspring that inherit their continuous genomic traits under a 12% Gaussian mutation filter.
 
 ---
 
-## What a Generation Looks Like
-```
-Generation N
-├── Agents move randomly across grid
-├── Collisions trigger payoff calculations
-│   ├── Cheater vs. Generous → Cheater +5, Generous +0
-│   ├── Cheater vs. Cheater → Both +1
-│   ├── Generous vs. Generous → Both +3
-│   └── Copycat vs. any → First round cooperate, then mirror
-├── After 500 frames: generation ends
-│   ├── Bottom 20% by resource score → pruned
-│   ├── Top 20% → replicate (inherit strategy)
-│   └── 5% of new agents → random mutation
-└── Generation N+1 begins
-```
+## Continuous Genomic Vectors
+
+Entities carry an embedded chromosomal strand, $\mathbf{G} = [G_1, G_2, G_3]$, defining their baseline behavioral profile:
+
+* $G_1$ **(Altruism):** Dictates baseline willingness to cooperate.
+* $G_2$ **(Forgiveness):** Controls memory decay and retaliation thresholds.
+* $G_3$ **(Desperation Panic Limit):** Represents an economic survival line. If an agent's internal energy reserves dip below $G_3$, it overrides its genome and defaults to predatory defection to avoid metabolic extinction.
+
+These variables dynamically map into three visible archetypes:
+
+| Strategy Archetype | Structural Rule Matrix | Color Mapping |
+| :--- | :--- | :--- |
+| **The Cheater** | Vector expressions where $G_1 < 0.35$ or energy is depleted past panic limits ($E < G_3$). Always defects. | Crimson |
+| **The Generous** | Altruistic expressions where $G_1 > 0.65$ and $G_2 > 0.55$. Always cooperates. | Deep Forest Green |
+| **The Copycat** | Adaptive memory loops. Handshakes with cooperation, then duplicates the rival's previous choice. | Slate Cobalt |
 
 ---
 
-## Planned Sandbox Features
+## State-of-the-Art Core Systems
 
-- **"God Mode" Environmental Modifiers:** Brush tools to draw localized micro-crises onto the canvas—Famine zones that accelerate resource decay, Ideological Plagues that force mutation cascades, Institutional Sanctions that freeze rogue defectors.
-- **Macroeconomic Campaign Scenarios:** Pre-configured setups modeled on real-world dynamics: structural inequality corridors, restricted extraction infrastructures, fragile utopian trust loops.
-- **Dynamic Visual Scale:** Agent size scales proportionally to accumulated capital, mapping structural wealth inequality onto the grid in real time.
+### 1. Spatial Signal Signaling (Trust Pheromone Field)
+Actions leave invisible, slow-evaporating chemical footprints across a secondary spatial memory matrix terrain. Cooperation bleeds a positive trail; defection poisons the local tile with an adversarial trace. Agents moving through high-poison zones automatically engage defensive pre-emptive defection strategies, visually simulating the localized collapse of societal trust.
 
----
+### 2. Genetic Lineage Cladograms
+A live visual sub-canvas maps maternal lineage trees. When an elite agent clones itself, its offspring inherits a continuous strain code (e.g., `Strain-A-412`). The cladogram traces real-time speciation, allowing observers to watch a predatory strain wipe out ancient cooperators or a hybrid strain survive economic famine to colonize the map.
 
-## Current Status
-
-**Pre-alpha.** Rendering engine and single-agent movement functional. Collision detection and payoff matrix integration in progress. Evolutionary selection loop planned next.
-
----
-
-## Why This Matters
-
-The Prisoner's Dilemma is typically studied through static payoff matrices in economics textbooks. But real-world strategy evolution is spatial, temporal, and emergent. Phenotype makes these dynamics visible. It asks: in a world where cheaters exploit and cooperators sustain, what survives—and what collapses the system?
-
-This project sits at the intersection of computational social science, evolutionary biology, and political economy. It's a sandbox for questions that can't be answered with algebra alone.
-
----
-
-## Repository Structure
-
-```text
-phenotype-abm/
-├── index.html   # Semantic structural wrappers & canvas DOM mounting
-├── style.css    # Typography architecture and print-editorial color palettes
-├── app.js       # Vector math, matrix logic, and frame rendering engine
-└── README.md    # Theoretical documentation and deployment maps
-```
+### 3. The Algorithmic Central Bank Terminal
+A rule-based macro-institution tracks the ecosystem's Gini coefficient and manages an autonomous tax fund through two toggleable policy regimes:
+* **Quantitative Easing (QE) Mode:** If systemic inequality spikes

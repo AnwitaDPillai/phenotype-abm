@@ -1,4 +1,4 @@
-/* --- 1. SYSTEM CORES & VARIABLES --- */
+/* --- 1. SYSTEM CORES & DESIGN VARIABLES --- */
 :root {
     --bg-ivory: #f1efe9;
     --surface-white: #ffffff;
@@ -6,11 +6,12 @@
     --text-muted: #6e6b64;
     --border-line: #d7d3c9;
     
-    /* Active Visualization Spectrum */
+    /* Academic Visualization Spectrum */
     --color-crimson: #b83b2e;
     --color-forest: #3e7d5a;
     --color-cobalt: #3a6186;
     --color-gold: #c29238;
+    --color-terminal: #25402a;
 }
 
 body {
@@ -20,29 +21,30 @@ body {
     margin: 0;
     padding: 0;
     height: 100vh;
+    width: 100vw;
     overflow: hidden;
     letter-spacing: -0.01em;
 }
 
-/* --- 2. THREE-COLUMN MASTER LAYOUT DOCK --- */
+/* --- 2. THREE-COLUMN DASHBOARD MASTER GRID --- */
 .dashboard-grid {
     display: grid;
-    grid-template-columns: 340px 1fr 320px;
+    grid-template-columns: 350px 1fr 340px;
     height: 100vh;
     width: 100vw;
     box-sizing: border-box;
 }
 
 .panel {
-    padding: 1.75rem;
+    padding: 1.5rem;
     box-sizing: border-box;
     overflow-y: auto;
+    overflow-x: hidden;
     border-right: 1px solid var(--border-line);
     display: flex;
     flex-direction: column;
 }
 
-/* Scrollbar refinement for internal panels */
 .panel::-webkit-scrollbar {
     width: 4px;
 }
@@ -51,14 +53,14 @@ body {
     border-radius: 2px;
 }
 
-/* --- 3. LEFT PANEL: ACADEMIC SPECIFICATION SPEC --- */
+/* --- 3. COLUMN 1: INTELLECTUAL SPECIFICATIONS --- */
 .theory-panel {
     background-color: var(--bg-ivory);
 }
 
 .brand-header h1 {
     font-family: "Times New Roman", Times, Baskerville, Georgia, serif;
-    font-size: 2.2rem;
+    font-size: 2.1rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     margin: 0;
@@ -66,51 +68,104 @@ body {
 }
 
 .classification {
-    font-size: 0.68rem;
+    font-size: 0.65rem;
     font-weight: 700;
     letter-spacing: 0.15em;
     color: var(--text-muted);
     margin-top: 0.3rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     border-bottom: 1px solid var(--text-charcoal);
     padding-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+/* Historic Campaign Preset Button Block */
+.sub-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 0.02em;
+}
+
+.campaign-presets {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1.5rem;
+}
+
+.btn-preset {
+    background: transparent;
+    border: 1px solid var(--border-line);
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-charcoal);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+}
+
+.btn-preset:hover {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: var(--text-charcoal);
+}
+
+.btn-preset.active {
+    background: var(--text-charcoal);
+    color: var(--bg-ivory);
+    border-color: var(--text-charcoal);
 }
 
 .prose-block h2 {
     font-family: "Times New Roman", Times, Georgia, serif;
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     font-weight: 600;
     margin-top: 0;
-    margin-bottom: 0.6rem;
+    margin-bottom: 0.5rem;
     letter-spacing: 0.02em;
+    text-transform: uppercase;
 }
 
 .prose-block p {
-    font-size: 0.82rem;
-    line-height: 1.6;
+    font-size: 0.8rem;
+    line-height: 1.55;
     color: #444240;
     margin-top: 0;
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
     text-align: justify;
 }
 
-/* Fixed equation container: Forces downward expansion and syntax wrapping */
+.prose-block ul {
+    margin: 0 0 1rem 0;
+    padding-left: 1.2rem;
+    font-size: 0.8rem;
+    color: #444240;
+}
+
+.prose-block li {
+    margin-bottom: 0.3rem;
+    line-height: 1.4;
+}
+
+/* Equation Containment System: Avoids Cross-Panel bleeding */
 .equation-box {
     background: rgba(0, 0, 0, 0.02);
     border-left: 2px solid var(--text-muted);
-    padding: 0.75rem;
-    margin: 1rem 0;
+    padding: 0.65rem;
+    margin: 0.8rem 0;
     color: var(--text-charcoal);
-    
     max-width: 100%;
-    overflow-x: visible;       /* Eradicates horizontal scroll clipping completely */
-    overflow-y: visible;       /* Allows container to expand downward */
-    white-space: normal;       /* Tells long strings to break onto the next line */
-    word-break: break-word;    /* Snaps heavy formula structures to avoid margins */
+    overflow-x: visible;
+    overflow-y: visible;
+    white-space: normal;
+    word-break: break-word;
     box-sizing: border-box;
 }
 
-/* Forces MathJax objects to adapt cleanly inside the sidebar layout boundaries */
 .equation-box .MathJax, 
 .prose-block .MathJax {
     display: inline-block !important;
@@ -122,36 +177,76 @@ body {
     box-sizing: border-box;
 }
 
-/* Academic Payoff Data Table */
 .matrix-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.72rem;
-    margin: 1.2rem 0;
+    font-size: 0.7rem;
+    margin: 1rem 0;
 }
 
 .matrix-table th, .matrix-table td {
     border: 1px solid var(--border-line);
-    padding: 8px 10px;
+    padding: 6px 8px;
     text-align: center;
 }
 
 .matrix-table th {
     background-color: rgba(0, 0, 0, 0.03);
     font-weight: 600;
-    color: var(--text-charcoal);
 }
 
-/* --- 4. CENTER PANEL: MAIN VISUAL KINETIC VIEWPORT --- */
+/* --- 4. COLUMN 2: PRIMARY VISUAL KINETIC FIELD --- */
 .simulation-panel {
-    background-color: #faf9f6; /* Premium clinical bone white */
-    justify-content: center;
+    background-color: #faf9f6; /* Clinical bone background */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    padding: 2rem;
+    padding: 1.25rem 2rem;
+}
+
+/* CRITICAL FIX: Converted Oracle Container to support wrapped multiline logs */
+.oracle-container {
+    width: 100%;
+    max-width: 620px;
+    background: var(--surface-white);
+    border: 1px solid var(--border-line);
+    padding: 10px 14px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: flex-start; /* Aligns badge smoothly with wrapped prose rows */
+    gap: 12px;
+    border-radius: 2px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    margin-bottom: 0.5rem;
+}
+
+.oracle-badge {
+    font-size: 0.58rem;
+    font-weight: 900;
+    background: var(--text-charcoal);
+    color: var(--bg-ivory);
+    padding: 3px 6px;
+    letter-spacing: 0.06em;
+    border-radius: 1px;
+    white-space: nowrap; /* Keeps badge structural under stress */
+    margin-top: 1px;
+}
+
+.oracle-text {
+    font-size: 0.78rem;
+    font-family: Georgia, serif;
+    font-style: italic;
+    color: #3a3836;
+    line-height: 1.4;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal; /* CRITICAL FIX: Eradicates horizontal truncation and ellipsis clip */
+    word-break: break-word;
 }
 
 .canvas-container {
-    box-shadow: 0 20px 50px rgba(44, 42, 41, 0.08);
+    box-shadow: 0 15px 40px rgba(44, 42, 41, 0.06);
     border: 1px solid var(--border-line);
     background-color: var(--surface-white);
     line-height: 0;
@@ -163,34 +258,62 @@ body {
     height: auto;
 }
 
-/* Real-Time Interactive Controller Layout */
+/* System Clock Controllers & Velocity Widgets */
 .control-bar {
-    margin-top: 2rem;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: 0.6rem;
     width: 100%;
-    max-width: 600px;
+    max-width: 620px;
+    background: var(--surface-white);
+    border: 1px solid var(--border-line);
+    padding: 12px 16px;
+    box-sizing: border-box;
+    border-radius: 2px;
+}
+
+.time-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.slider-group {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.slider-group input[type="range"] {
+    accent-color: var(--text-charcoal);
+    cursor: pointer;
+    width: 110px;
 }
 
 .control-title {
-    font-size: 0.68rem;
+    font-size: 0.6rem;
     font-weight: 800;
     letter-spacing: 0.08em;
     color: var(--text-muted);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
     width: 100%;
-    text-align: center;
-    margin-bottom: 0.2rem;
+}
+
+.action-buttons .btn {
+    flex: 1;
 }
 
 .btn {
     background: var(--surface-white);
     border: 1px solid var(--border-line);
-    padding: 8px 14px;
-    font-size: 0.72rem;
-    font-weight: 600;
+    padding: 8px 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     cursor: pointer;
@@ -201,18 +324,12 @@ body {
 .btn:hover {
     background: var(--text-charcoal);
     color: var(--bg-ivory);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
-.btn:active {
-    transform: translateY(0);
-}
-
-/* --- 5. RIGHT PANEL: REAL-TIME STATISTICS DOCK --- */
+/* --- 5. COLUMN 3: REAL-TIME TELEMETRY SUITE --- */
 .telemetry-panel {
     border-right: none;
-    background-color: #eae7df; /* Deep ivory tint for statistics */
+    background-color: #eae7df; /* Deep statistics ivory tone */
 }
 
 .section-header {
@@ -223,26 +340,22 @@ body {
 
 .section-header h2 {
     font-family: "Times New Roman", Times, Georgia, serif;
-    font-size: 1.1rem;
+    font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     margin: 0;
 }
 
 .status-indicator {
-    font-size: 0.62rem;
+    font-size: 0.58rem;
     font-weight: 800;
     letter-spacing: 0.05em;
     color: var(--color-forest);
     background: rgba(62, 125, 94, 0.1);
-    padding: 4px 8px;
-    border-radius: 10px;
+    padding: 3px 6px;
+    border-radius: 2px;
 }
 
-/* Pulsing heart node */
-.pulses {
-    position: relative;
-}
 .pulses::before {
     content: '';
     display: inline-block;
@@ -250,60 +363,53 @@ body {
     height: 5px;
     background: var(--color-forest);
     border-radius: 50%;
-    margin-right: 5px;
+    margin-right: 4px;
     vertical-align: middle;
 }
 
 .panel-divider {
     border: none;
     border-top: 1px solid var(--border-line);
-    margin: 1.2rem 0;
+    margin: 1rem 0;
     width: 100%;
 }
 
-/* Metric Display Blocks */
 .metric-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    gap: 0.75rem;
 }
 
 .metric-box {
     display: flex;
     flex-direction: column;
-    margin-bottom: 0.4rem;
-}
-
-.metric-box:nth-child(2), .metric-box:nth-child(4) {
-    grid-column: span 1;
 }
 
 .metric-label {
-    font-size: 0.62rem;
+    font-size: 0.58rem;
     font-weight: 800;
     color: var(--text-muted);
     letter-spacing: 0.06em;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.1rem;
     text-transform: uppercase;
 }
 
 .metric-value {
     font-family: monospace;
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     font-weight: 700;
     color: var(--text-charcoal);
 }
 
 .metric-value.ESCROW {
-    color: var(--color-gold);
+    color: #a4761c;
 }
 
-/* Statistical Bars */
 .progress-track {
     width: 100%;
     height: 3px;
     background: var(--border-line);
-    margin-top: 4px;
+    margin-top: 3px;
     border-radius: 1px;
 }
 
@@ -311,63 +417,158 @@ body {
     height: 100%;
     background: var(--text-charcoal);
     width: 0%;
-    transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: width 0.3s ease;
 }
 
-/* Diagnostic sub-canvas ports */
-.canvas-container.diagnostic-container {
-    background: var(--surface-white);
-    padding: 0.5rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0.5rem 0;
-}
-
-/* Demographic Data Row Matrix */
+/* INTERACTIVE LIVE LEGEND HOVER STATES */
 .telemetry-bar-stack {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 0.35rem;
 }
 
 .demo-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
+    padding: 6px 8px;
+    border-radius: 2px;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.01);
+    border: 1px solid transparent;
+    transition: all 0.15s ease;
 }
 
-.demo-tag {
+.demo-row:hover {
+    background: var(--surface-white);
+    border-color: var(--border-line);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+
+.legend-stats {
     display: flex;
-    align-items: center;
-    color: #3d3b39;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.micro-status {
+    font-size: 0.52rem;
+    font-weight: 900;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+    margin-top: 1px;
 }
 
 .dot-indicator {
-    width: 7px;
-    height: 7px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
-    margin-right: 8px;
+    margin-right: 6px;
+    display: inline-block;
 }
-
 .dot-indicator.crimson { background-color: var(--color-crimson); }
 .dot-indicator.forest { background-color: var(--color-forest); }
 .dot-indicator.cobalt { background-color: var(--color-cobalt); }
 
-.demo-pct {
-    font-weight: 700;
+/* CENTRAL BANK INSTITUTIONAL INTEGRATED MICRO-TERMINAL */
+.bank-policy-panel {
+    background: #242321; /* Charcoal vintage console block */
+    padding: 10px 12px;
+    border-radius: 2px;
+    border: 1px solid #363431;
 }
 
-.phase-space-section {
-    margin-top: 1.2rem;
+.bank-policy-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.bank-policy-header h2 {
+    color: #9e9b95;
+    font-family: monospace;
+    font-size: 0.65rem;
+    font-weight: bold;
+    letter-spacing: 0.06em;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.policy-toggle-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toggle-label {
+    font-family: monospace;
+    font-size: 0.58rem;
+    color: var(--color-gold);
+    font-weight: bold;
+}
+
+.btn-toggle {
+    background: #3a3835;
+    border: 1px solid #4d4a46;
+    color: #eae7df;
+    font-family: monospace;
+    font-size: 0.55rem;
+    padding: 2px 5px;
+    cursor: pointer;
+    border-radius: 1px;
+}
+
+.btn-toggle:hover {
+    background: var(--text-charcoal);
+    color: var(--surface-white);
+}
+
+.terminal-log {
+    font-family: monospace;
+    font-size: 0.62rem;
+    line-height: 1.4;
+    color: #4af626; /* Neo-phosphor amber/green output print */
+    height: 52px;
+    overflow-y: hidden;
+    opacity: 0.88;
+    text-shadow: 0 0 2px rgba(74, 246, 38, 0.3);
+}
+
+/* CRITICAL FIX: Converted layout into a strict stacked column structure to prevent offscreen horizontal overflow */
+.diagnostic-grid-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+    width: 100%;
+}
+
+.canvas-container.diagnostic-container {
+    background: var(--surface-white);
+    border: 1px solid var(--border-line);
+    padding: 0.4rem;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 0.2rem;
+    width: 100%; /* Keeps metrics strictly within width profiles */
+    height: 110px; /* Locked physical scale constraints */
+}
+
+/* Ensures custom engine sub-canvases stretch safely across structural blocks */
+.canvas-container.diagnostic-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain;
 }
 
 .matrix-mini-map {
-    background: #2c2a29 !important; /* Matrix black radar scope for Phase Space */
+    background: #1e1d1c !important; /* Continuous spectrum radar scope vector field */
     border-color: #2c2a29;
 }
 
-.monospace {
-    font-family: monospace;
-}
+.monospace { font-family: monospace; }
+.text-bold { font-weight: bold; }

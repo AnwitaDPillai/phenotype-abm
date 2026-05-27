@@ -1,309 +1,525 @@
-// --- 1. SYSTEM INITIALIZATION & CORE COEFFICIENTS ---
+// ============================================================================
+// --- 1. SYSTEM STRUCTURAL ARCHITECTURE & COEFFICIENTS -----------------------
+// ============================================================================
 const canvas = document.getElementById('simCanvas');
 const ctx = canvas.getContext('2d');
 const lorenzCanvas = document.getElementById('lorenzCanvas');
 const lorenzCtx = lorenzCanvas.getContext('2d');
+const cladogramCanvas = document.getElementById('cladogramCanvas');
+const cladogramCtx = cladogramCanvas.getContext('2d');
 const phaseCanvas = document.getElementById('phaseCanvas');
 const phaseCtx = phaseCanvas.getContext('2d');
 
 const CONFIG = {
-    popSize: 130,
+    popSize: 150,
     baseMetabolicCost: 0.05,
     interactionRadius: 9,
-    generationFrames: 450,
+    generationFrames: 500,
     mutationRate: 0.12,
-    taxRate: 0.07,
-    trustDecay: 0.002
+    baseTaxRate: 0.06,
+    pheromonesResolution: 20
 };
 
+// Global Simulation Runtime State Triggers
 let currentGeneration = 1;
 let elapsedFrames = 0;
-let bankReserveEscrow = 0;
-let historicalTrajectory = []; // Cache for phase-space orbit tracking
+let bankReserveEscrow = 100.0;
+let centralBankPolicy = "QE"; // "QE" or "AUSTERITY"
+let isSimulationPaused = false;
+let simulationVelocity = 1;
+let activeHoverArchetype = null;
 
-// --- 2. THERMODYNAMIC RESOURCE GEOGRAPHY (REACTION-DIFFUSION GRID) ---
-class ThermodynamicField {
-    constructor(width, height, resolution = 25) {
-        this.res = resolution;
-        this.cols = Math.ceil(width / resolution);
-        this.rows = Math.ceil(height / resolution);
-        this.resources = [];
-        this.thermalWaste = [];
+let population = [];
+let historicalTrajectory = [];
+let uniqueStrainRegistry = new Set();
+let historicalLineageTally = {}; 
+
+// ============================================================================
+// --- 2. ADVANCED SPATIAL MEMORY MATRIX (TRUST PHEROMONE ENGINE) -------------
+// ============================================================================
+class DualLayerPheromoneGrid {
+    constructor(width, height, res = CONFIG.pheromonesResolution) {
+        this.res = res;
+        this.cols = Math.ceil(width / res);
+        this.rows = Math.ceil(height / res);
+        this.cooperationField = [];
+        this.defectionField = [];
         this.initializeFields();
     }
 
     initializeFields() {
         for (let c = 0; c < this.cols; c++) {
-            this.resources[c] = [];
-            this.thermalWaste[c] = [];
+            this.cooperationField[c] = new Float32Array(this.rows).fill(0.0);
+            this.defectionField[c] = new Float32Array(this.rows).fill(0.0);
+        }
+    }
+
+    bleedSignal(x, y, signalType, intensity) {
+        const c = Math.max(0, Math.min(this.cols - 1, Math.floor(x / this.res)));
+        const r = Math.max(0, Math.min(this.rows - 1, Math.floor(y / this.res)));
+        if (signalType === 'Cooperate') {
+            this.cooperationField[c][r] = Math.min(1.0, this.cooperationField[c][r] + intensity);
+        } else {
+            this.defectionField[c][r] = Math.min(1.0, this.defectionField[c][r] + intensity);
+        }
+    }
+
+    evaporateAndDiffuse() {
+        for (let c = 0; c < this.cols; c++) {
             for (let r = 0; r < this.rows; r++) {
-                // Initialize high-density resource pockets via harmonic sine distribution waves
-                const wave = Math.sin(c * 0.4) * Math.cos(r * 0.4);
-                this.resources[c][r] = wave > 0.15 ? 1.0 : 0.1;
-                this.thermalWaste[c][r] = 0;
+                this.cooperationField[c][r] *= 0.985; // Slow evaporation
+                this.defectionField[c][r] *= 0.985;
             }
         }
     }
 
-    computeDynamics() {
-        // Run continuous local diffusion and dissipate kinetic thermal waste heat
-        for (let c = 0; c < this.cols; c++) {
-            for (let r = 0; r < this.rows; r++) {
-                if (this.thermalWaste[c][r] > 0) this.thermalWaste[c][r] *= 0.98; // Heat dissipation
-                
-                // Reaction-Diffusion: Soil replenishes slowly if it hasn't overheated
-                if (this.thermalWaste[c][r] < 0.7) {
-                    if (this.resources[c][r] < 1.0) this.resources[c][r] += 0.003;
-                } else {
-                    this.resources[c][r] -= 0.005; // Thermal degradation of local carrying capacity
-                    if (this.resources[c][r] < 0) this.resources[c][r] = 0;
-                }
-            }
-        }
+    sampleLocalEnvironment(x, y) {
+        const c = Math.max(0, Math.min(this.cols - 1, Math.floor(x / this.res)));
+        const r = Math.max(0, Math.min(this.rows - 1, Math.floor(y / this.res)));
+        return {
+            coopDensity: this.cooperationField[c][r],
+            defectDensity: this.defectionField[c][r]
+        };
     }
 
-    render() {
+    renderOverlay() {
         for (let c = 0; c < this.cols; c++) {
             for (let r = 0; r < this.rows; r++) {
-                const resValue = this.resources[c][r];
-                const heatValue = this.thermalWaste[c][r];
-                
-                // Visual blending: Ivory backgrounds modulated by nutrient density and thermal distress
-                ctx.fillStyle = `rgba(215, 211, 201, ${resValue * 0.35})`;
-                ctx.fillRect(c * this.res, r * this.res, this.res, this.res);
-
-                if (heatValue > 0.4) {
-                    ctx.fillStyle = `rgba(184, 59, 46, ${heatValue * 0.12})`;
+                const coop = this.cooperationField[c][r];
+                const defect = this.defectionField[c][r];
+                if (coop > 0.05 || defect > 0.05) {
+                    ctx.fillStyle = coop > defect 
+                        ? `rgba(62, 125, 94, ${coop * 0.15})` 
+                        : `rgba(184, 59, 46, ${defect * 0.15})`;
                     ctx.fillRect(c * this.res, r * this.res, this.res, this.res);
                 }
             }
         }
     }
 }
+const environmentalLandscape = new DualLayerPheromoneGrid(canvas.width, canvas.height);
 
-const macroWorld = new ThermodynamicField(canvas.width, canvas.height);
-
-// --- 3. EPIGENETIC SOCIO-KINETIC AGENT CLASS ---
+// ============================================================================
+// --- 3. EPIGENETIC ENTITY ARCHITECTURE (MATERNAL LINEAGES) ------------------
+// ============================================================================
 class ChromosomalAgent {
-    constructor(x, y, genome = null) {
+    constructor(x, y, genome = null, lineageCode = null) {
         this.x = x;
         this.y = y;
-        this.vx = (Math.random() - 0.5) * 2.8;
-        this.vy = (Math.random() - 0.5) * 2.8;
+        this.vx = (Math.random() - 0.5) * 2.5;
+        this.vy = (Math.random() - 0.5) * 2.5;
         this.id = Math.random().toString(36).substr(2, 9);
-        this.energy = 30;
-        this.isDead = false;
+        this.energy = 30.0;
+        this.consecutiveDefections = 0;
 
-        // --- 🧬 MULTI-VARIABLE CONTINUOUS GENOME ---
         if (genome) {
             this.genome = { ...genome };
         } else {
             this.genome = {
-                G1_Altruism: Math.random(),           // Propensity to offer trust on interaction 0
-                G2_Forgiveness: Math.random(),        // Memory decay factor for incoming betrayals
-                G3_DesperationLimit: Math.random() * 12 // Energy floor triggering defensive defection
+                G1_Altruism: Math.random(),
+                G2_Forgiveness: Math.random(),
+                G3_DesperationLimit: Math.random() * 8 + 4.0
             };
         }
 
-        // Live relational map tracker
-        this.adjacencyMatrix = new Map(); 
+        // Maternal lineage registration tree logic
+        if (lineageCode) {
+            this.lineageCode = lineageCode;
+        } else {
+            const rootId = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+            this.lineageCode = `Strain-${rootId}-${Math.floor(Math.random() * 900 + 100)}`;
+        }
+        uniqueStrainRegistry.add(this.lineageCode);
+
+        this.historyLog = new Map();
     }
 
     getExpressedPhenotype() {
-        // Epigenetic state mutation: Hunger overrides baseline altruistic genetic programming
-        if (this.energy < this.genome.G3_DesperationLimit) {
-            return 'Desperate_Defector';
-        }
-        return this.genome.G1_Altruism > 0.55 ? (this.genome.G2_Forgiveness > 0.5 ? 'Reciprocator' : 'Cooperator') : 'Defector';
+        if (this.energy < this.genome.G3_DesperationLimit) return 'Cheater'; // Starvation panic override
+        if (this.genome.G1_Altruism < 0.35) return 'Cheater';
+        if (this.genome.G1_Altruism > 0.65 && this.genome.G2_Forgiveness > 0.55) return 'Generous';
+        return 'Copycat';
     }
 
     updatePhysics() {
         this.x += this.vx;
         this.y += this.vy;
 
-        // Kinetic metabolic tax calculation: Kinetic energy loss proportional to velocity squared
-        const velocitySquared = (this.vx * this.vx) + (this.vy * this.vy);
-        this.energy -= CONFIG.baseMetabolicCost + (velocitySquared * 0.008);
+        // Dynamic metabolism tracking velocity kinetics
+        const speedSq = (this.vx * this.vx) + (this.vy * this.vy);
+        this.energy -= CONFIG.baseMetabolicCost + (speedSq * 0.003);
 
-        // Map spatial grid interaction vectors to local tiles
-        const c = Math.floor(this.x / macroWorld.res);
-        const r = Math.floor(this.y / macroWorld.res);
-
-        if (c >= 0 && c < macroWorld.cols && r >= 0 && r < macroWorld.rows) {
-            // Expel thermal kinetic waste to local ecosystem tiles
-            macroWorld.thermalWaste[c][r] += 0.015;
-            
-            // Extract energy values from fertile geographic grids
-            const harvestable = macroWorld.resources[c][r];
-            if (harvestable > 0.1) {
-                const intake = 0.08;
-                this.energy += intake;
-                macroWorld.resources[c][r] -= intake;
-            }
-        }
-
-        // Rigid spatial vector boundary reflections
-        const padding = 7;
-        if (this.x - padding < 0 || this.x + padding > canvas.width) { this.vx *= -1; this.x = Math.max(padding, Math.min(canvas.width - padding, this.x)); }
-        if (this.y - padding < 0 || this.y + padding > canvas.height) { this.vy *= -1; this.y = Math.max(padding, Math.min(canvas.height - padding, this.y)); }
+        // Boundary reflection handling
+        const pad = 8;
+        if (this.x - pad < 0 || this.x + pad > canvas.width) { this.vx *= -1; this.x = Math.max(pad, Math.min(canvas.width - pad, this.x)); }
+        if (this.y - pad < 0 || this.y + pad > canvas.height) { this.vy *= -1; this.y = Math.max(pad, Math.min(canvas.height - pad, this.y)); }
     }
 
     evaluateAction(opponentId) {
-        const structuralPhenotype = this.getExpressedPhenotype();
-        if (structuralPhenotype === 'Desperate_Defector' || structuralPhenotype === 'Defector') return 'Defect';
-        if (structuralPhenotype === 'Cooperator') return 'Cooperate';
-
-        // Reciprocator Logic: Analyze structural network memory logs
-        if (this.adjacencyMatrix.has(opponentId)) {
-            const historicalTrust = this.adjacencyMatrix.get(opponentId);
-            return historicalTrust < 0.35 ? 'Defect' : 'Cooperate';
+        // Spatial Signal Signaling Override: If environment is highly poisoned, force defection
+        const localSignal = environmentalLandscape.sampleLocalEnvironment(this.x, this.y);
+        if (localSignal.defectDensity > 0.60 && this.genome.G2_Forgiveness < 0.75) {
+            return 'Defect';
         }
-        return 'Cooperate'; // Offer base trust on encounter 0
+
+        const archetype = this.getExpressedPhenotype();
+        if (archetype === 'Cheater') return 'Defect';
+        if (archetype === 'Generous') return 'Cooperate';
+
+        // Copycat Memory Logic
+        if (this.historyLog.has(opponentId)) {
+            return this.historyLog.get(opponentId);
+        }
+        return 'Cooperate';
     }
 
     renderNode() {
-        ctx.beginPath();
-        const scalarScale = Math.max(2.8, Math.min(13, 3 + (this.energy * 0.14)));
-        ctx.arc(this.x, this.y, scalarScale, 0, Math.PI * 2);
+        const archetype = this.getExpressedPhenotype();
+        
+        // Handle Interactive Live Legend Ticker Filter Highlights
+        if (activeHoverArchetype && activeHoverArchetype !== archetype) {
+            ctx.globalAlpha = 0.08; // Dim unselected agents
+        } else {
+            ctx.globalAlpha = 1.0;
+        }
 
-        const activeState = this.getExpressedPhenotype();
-        if (activeState === 'Desperate_Defector') ctx.fillStyle = '#ff7b54'; // Neon flare orange signaling famine desperation
-        else if (activeState === 'Defector') ctx.fillStyle = '#b83b2e';       // Crimson
-        else if (activeState === 'Cooperator') ctx.fillStyle = '#3e7d5a';     // Deep Forest Green
-        else if (activeState === 'Reciprocator') ctx.fillStyle = '#3a6186';   // Cobalt
+        ctx.beginPath();
+        // Dynamic Visual Scale mapping accumulated structural wealth directly onto node radius
+        const dynamicRadius = Math.max(2.5, Math.min(15, 3.0 + (this.energy * 0.15)));
+        ctx.arc(this.x, this.y, dynamicRadius, 0, Math.PI * 2);
+
+        if (archetype === 'Cheater') ctx.fillStyle = '#b83b2e';
+        else if (archetype === 'Generous') ctx.fillStyle = '#3e7d5a';
+        else if (archetype === 'Copycat') ctx.fillStyle = '#3a6186';
 
         ctx.fill();
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+        ctx.strokeStyle = '#faf9f6';
         ctx.lineWidth = 1;
         ctx.stroke();
         ctx.closePath();
     }
 }
 
-// --- 4. ENGINE ARRAYS & SELECTION REGISTRIES ---
-let population = [];
+// ============================================================================
+// --- 4. HIGH-PERFORMANCE O(N) CELLS GRID COLLISION HARNESS -----------------
+// ============================================================================
+function processGridCollisions() {
+    const cellSize = CONFIG.interactionRadius * 2;
+    const cols = Math.ceil(canvas.width / cellSize);
+    const rows = Math.ceil(canvas.height / cellSize);
+    const cellsGrid = Array.from({ length: cols * rows }, () => []);
 
-function assembleEcosystem() {
-    population = [];
-    for (let i = 0; i < CONFIG.popSize; i++) {
-        population.push(new ChromosomalAgent(
-            Math.random() * canvas.width,
-            Math.random() * canvas.height
-        ));
-    }
-}
-assembleEcosystem();
-
-// --- 5. SOCIAL NETWORKS GRAPH & PAYOFF MATRICES ---
-function resolveSocioInteraction(agentA, agentB) {
-    const moveA = agentA.evaluateAction(agentB.id);
-    const moveB = agentB.evaluateAction(agentA.id);
-
-    let matrixYieldA = 0;
-    let matrixYieldB = 0;
-
-    // Evaluate Structural Payoff Calculations
-    if (moveA === 'Cooperate' && moveB === 'Cooperate') { matrixYieldA = 3.0; matrixYieldB = 3.0; }
-    else if (moveA === 'Defect' && moveB === 'Cooperate') { matrixYieldA = 5.0; matrixYieldB = 0.0; }
-    else if (moveA === 'Cooperate' && moveB === 'Defect') { matrixYieldA = 0.0; matrixYieldB = 5.0; }
-    else if (moveA === 'Defect' && moveB === 'Defect') { matrixYieldA = 1.0; matrixYieldB = 1.0; }
-
-    // Deduct National Transaction Taxation Skims
-    const structuralTaxA = matrixYieldA * CONFIG.taxRate;
-    const structuralTaxB = matrixYieldB * CONFIG.taxRate;
-    bankReserveEscrow += structuralTaxA + structuralTaxB;
-
-    agentA.energy += (matrixYieldA - structuralTaxA);
-    agentB.energy += (matrixYieldB - structuralTaxB);
-
-    // Modify Structural Trust Links via Reciprocal Memory Updates
-    let weightDeltaA = moveB === 'Cooperate' ? 0.25 : -0.4;
-    let weightDeltaB = moveA === 'Cooperate' ? 0.25 : -0.4;
-
-    let currentWeightA = agentA.adjacencyMatrix.get(agentB.id) || 0.5;
-    let currentWeightB = agentB.adjacencyMatrix.get(agentA.id) || 0.5;
-
-    agentA.adjacencyMatrix.set(agentB.id, Math.max(0, Math.min(1, currentWeightA + weightDeltaA)));
-    agentB.adjacencyMatrix.set(agentA.id, Math.max(0, Math.min(1, currentWeightB + weightDeltaB)));
-
-    // Visualize High-Trust Mutual Network Edges
-    if (moveA === 'Cooperate' && moveB === 'Cooperate') {
-        ctx.beginPath();
-        ctx.strokeStyle = `rgba(62, 125, 94, ${((currentWeightA + currentWeightB) / 2) * 0.22})`;
-        ctx.lineWidth = 1;
-        ctx.moveTo(agentA.x, agentA.y);
-        ctx.lineTo(agentB.x, agentB.y);
-        ctx.stroke();
-        ctx.closePath();
+    for (let i = 0; i < population.length; i++) {
+        const agent = population[i];
+        const cx = Math.max(0, Math.min(cols - 1, Math.floor(agent.x / cellSize)));
+        const cy = Math.max(0, Math.min(rows - 1, Math.floor(agent.y / cellSize)));
+        cellsGrid[cx + cy * cols].push(agent);
     }
 
-    // Elastic Collision Vector Reflection
-    agentA.vx *= -1; agentA.vy *= -1;
-    agentB.vx *= -1; agentB.vy *= -1;
-}
+    const cellNeighborOffsets = [[0,0], [1,0], [-1,1], [0,1], [1,1]];
 
-// --- 6. MACROECONOMIC TELEMETRY (LORENZ & GINI ENGINES) ---
-function calculateGiniAndRenderLorenz() {
-    lorenzCtx.clearRect(0, 0, lorenzCanvas.width, lorenzCanvas.height);
-    
-    if (population.length === 0) return 0;
-    
-    // Extract asset arrays, sorted ascending
-    let capitalVector = population.map(a => Math.max(0, a.energy)).sort((a, b) => a - b);
-    let totalBiomassWealth = capitalVector.reduce((sum, val) => sum + val, 0);
-    let n = capitalVector.length;
+    for (let x = 0; x < cols; x++) {
+        for (let y = 0; y < rows; y++) {
+            const currentIdx = x + y * cols;
+            const sourceCellBucket = cellsGrid[currentIdx];
+            if (sourceCellBucket.length === 0) continue;
 
-    if (totalBiomassWealth === 0) return 0;
+            for (const [ox, oy] of cellNeighborOffsets) {
+                const nx = x + ox;
+                const ny = y + oy;
+                if (nx >= 0 && nx < cols && ny >= 0 && ny < rows) {
+                    const targetIdx = nx + ny * cols;
+                    const targetCellBucket = cellsGrid[targetIdx];
 
-    // Exact Mathematical Gini Calculation Loop
-    let absoluteSumDiff = 0;
-    for (let i = 0; i < n; i++) {
-        for (let j = 0; j < n; j++) {
-            absoluteSumDiff += Math.abs(capitalVector[i] - capitalVector[j]);
+                    for (let i = 0; i < sourceCellBucket.length; i++) {
+                        const agentA = sourceCellBucket[i];
+                        const loopStart = (currentIdx === targetIdx) ? i + 1 : 0;
+
+                        for (let j = loopStart; j < targetCellBucket.length; j++) {
+                            const agentB = targetCellBucket[j];
+
+                            const dx = agentB.x - agentA.x;
+                            const dy = agentB.y - agentA.y;
+                            const d = Math.sqrt(dx * dx + dy * dy);
+
+                            if (d < CONFIG.interactionRadius) {
+                                executeInteractionDynamics(agentA, agentB);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
-    const giniCoefficient = absoluteSumDiff / (2 * n * n * totalBiomassWealth);
+}
 
-    // --- RENDER REAL-TIME ACADEMIC LORENZ GRAPH ---
-    lorenzCtx.strokeStyle = '#d7d3c9'; // Base Line of Absolute Equality
+function executeInteractionDynamics(a, b) {
+    const actionA = a.evaluateAction(b.id);
+    const actionB = b.evaluateAction(a.id);
+
+    let yieldA = 0, yieldB = 0;
+    if (actionA === 'Cooperate' && actionB === 'Cooperate') { yieldA = 3.0; yieldB = 3.0; }
+    else if (actionA === 'Defect' && actionB === 'Cooperate') { yieldA = 5.0; yieldB = 0.0; }
+    else if (actionA === 'Cooperate' && actionB === 'Defect') { yieldA = 0.0; yieldB = 5.0; }
+    else if (actionA === 'Defect' && actionB === 'Defect') { yieldA = 1.0; yieldB = 1.0; }
+
+    // Bleed performance footprints into the local environment grid
+    environmentalLandscape.bleedSignal(a.x, a.y, actionA, 0.25);
+    environmentalLandscape.bleedSignal(b.x, b.y, actionB, 0.25);
+
+    // Dynamic Institutional Fines: Fine continuous defection sequences
+    a.consecutiveDefections = (actionA === 'Defect') ? a.consecutiveDefections + 1 : 0;
+    b.consecutiveDefections = (actionB === 'Defect') ? b.consecutiveDefections + 1 : 0;
+    
+    if (a.consecutiveDefections >= 4) { yieldA -= 0.8; bankReserveEscrow += 0.8; }
+    if (b.consecutiveDefections >= 4) { yieldB -= 0.8; bankReserveEscrow += 0.8; }
+
+    // Apply basic banking tax rates
+    const taxA = yieldA * CONFIG.baseTaxRate;
+    const taxB = yieldB * CONFIG.baseTaxRate;
+    bankReserveEscrow += taxA + taxB;
+
+    a.energy += (yieldA - taxA);
+    b.energy += (yieldB - taxB);
+
+    a.historyLog.set(b.id, actionB);
+    b.historyLog.set(a.id, actionA);
+
+    // Physics elastic deflection kickback
+    a.vx *= -1; a.vy *= -1;
+    b.vx *= -1; b.vy *= -1;
+}
+
+// ============================================================================
+// --- 5. AUTOMATED NARRATIVE ORACLE ENGINE -----------------------------------
+// ============================================================================
+function executeOracleNarration(gini, defPct, copPct, recPct) {
+    const oracleBox = document.getElementById('oracleText');
+    if (elapsedFrames % 40 !== 0) return; // Restrict evaluation cycles to guarantee frame budget
+
+    if (population.length < 30) {
+        oracleBox.innerText = "CRITICAL ECOSYSTEM STRAIN // Extinction threat sequence active. Population below critical density.";
+        return;
+    }
+    if (gini > 0.58) {
+        oracleBox.innerText = `Systemic capital is concentrating within predatory networks. Gini coefficient climbs to ${gini.toFixed(2)}.`;
+        return;
+    }
+    if (defPct > 65) {
+        oracleBox.innerText = "CRIMSON DOMINANCE // Exploitative strategies oversaturating local vectors. Resource crash imminent.";
+        return;
+    }
+    if (copPct + recPct > 80) {
+        oracleBox.innerText = "COOPERATIVE UTOPIA // Mutual trust networks stabilized across spatial boundaries. Wealth inequality nominal.";
+        return;
+    }
+    if (centralBankPolicy === "QE" && bankReserveEscrow < 30) {
+        oracleBox.innerText = "FEDERAL RESERVE INTERVENTION // Liquidity pools injected to prevent low-capital systemic failures.";
+        return;
+    }
+    oracleBox.innerText = "System running under balanced metrics. Genetic drift mutations tracing nominal speciation paths.";
+}
+
+// ============================================================================
+// --- 6. MACRO-EVOLUTIONARY SELECTION & ALGORITHMIC BANK SYSTEM --------------
+// ============================================================================
+function runMacroEvolutionarySweep() {
+    population = population.filter(a => a.energy > 0);
+    if (population.length < 10) { reinitializeEcosystem(); pushTerminalLog("[ALERT] EXTINCTION SHOCK. REGEN ALLOCATED."); return; }
+
+    population.sort((a, b) => b.energy - a.energy);
+    
+    // Calculate final statistics for text outputs before slicing distributions
+    let totalAssets = population.reduce((sum, a) => sum + a.energy, 0);
+    let avgAssetValue = totalAssets / population.length;
+
+    // Prune baseline bottom 20% according to the core specification
+    const survivalThresholdIndex = Math.floor(population.length * 0.80);
+    population = population.slice(0, survivalThresholdIndex);
+
+    // Replicate top 20% elite lines
+    const eliteLimit = Math.ceil(population.length * 0.20);
+    const nursery = [];
+
+    for (let i = 0; i < eliteLimit; i++) {
+        const parent = population[i];
+        parent.energy /= 2.0; // Siphon energy capital to fuel biological child division
+
+        const mutatedGenome = { ...parent.genome };
+        if (Math.random() < CONFIG.mutationRate) {
+            mutatedGenome.G1_Altruism = Math.max(0.0, Math.min(1.0, mutatedGenome.G1_Altruism + (Math.random() - 0.5) * 0.25));
+            mutatedGenome.G2_Forgiveness = Math.max(0.0, Math.min(1.0, mutatedGenome.G2_Forgiveness + (Math.random() - 0.5) * 0.25));
+        }
+
+        // Child inherits continuous maternal lineage classification codes
+        const child = new ChromosomalAgent(
+            parent.x + (Math.random() - 0.5) * 12,
+            parent.y + (Math.random() - 0.5) * 12,
+            mutatedGenome,
+            parent.lineageCode
+        );
+        child.energy = parent.energy;
+        nursery.push(child);
+    }
+
+    // --- AUTONOMOUS ALGORITHMIC CENTRAL BANK REGULATORY MACHINE ---
+    const sortedAssets = population.map(a => a.energy).sort((a,b) => a-b);
+    let absoluteDiff = 0, n = sortedAssets.length;
+    for(let x=0; x<n; x++) { for(let y=0; y<n; y++) { absoluteDiff += Math.abs(sortedAssets[x] - sortedAssets[y]); } }
+    const currentGini = n > 0 ? absoluteDiff / (2 * n * n * (totalAssets/n)) : 0;
+
+    if (centralBankPolicy === "QE") {
+        if (currentGini > 0.50 && bankReserveEscrow > 20) {
+            // QE Intervention: Automatically route dividends to support the bottom 20%
+            const baselineRescueCount = Math.ceil(population.length * 0.20);
+            const payoutPackage = (bankReserveEscrow * 0.60) / Math.max(1, baselineRescueCount);
+            
+            // Give cash injection to the lowest asset entries
+            population.sort((a,b) => a.energy - b.energy);
+            for (let k = 0; k < baselineRescueCount; k++) {
+                if (population[k]) population[k].energy += payoutPackage;
+            }
+            bankReserveEscrow *= 0.40;
+            pushTerminalLog(`[FED] QE ALERT: FLOODING BASAL LIQUIDITY // GINI: ${currentGini.toFixed(2)}`);
+        }
+    } else {
+        // AUSTERITY MODE: Bank hoards asset liquidity pools to shield the system grid from total extinction collapses
+        if (population.length < 35 && bankReserveEscrow > 50) {
+            const safetyStimulus = bankReserveEscrow * 0.70;
+            const structuralDividend = safetyStimulus / population.length;
+            population.forEach(a => a.energy += structuralDividend);
+            bankReserveEscrow -= safetyStimulus;
+            pushTerminalLog("[FED] AUSTERITY CRASH PREVENT: RELEASE EMBARGO ASSETS");
+        } else {
+            // Extra extraction siphons to build reserves
+            population.forEach(a => {
+                const siphonAmt = a.energy * 0.02;
+                a.energy -= siphonAmt;
+                bankReserveEscrow += siphonAmt;
+            });
+            pushTerminalLog(`[FED] HARVEST RESERVES // VAULT DOCK: ${bankReserveEscrow.toFixed(0)}e`);
+        }
+    }
+
+    population = population.concat(nursery);
+    currentGeneration++;
+}
+
+// ============================================================================
+// --- 7. REVENUE DIAGNOSTICS & CHARTS VIEWPORTS ------------------------------
+// ============================================================================
+function calculateMetricsAndDrawCharts() {
+    lorenzCtx.clearRect(0, 0, lorenzCanvas.width, lorenzCanvas.height);
+    cladogramCtx.clearRect(0, 0, cladogramCanvas.width, cladogramCanvas.height);
+
+    if (population.length === 0) return 0;
+
+    const canvasW = lorenzCanvas.width;   // 300
+    const canvasH = lorenzCanvas.height;  // 110
+
+    // A. Calculate Gini Coefficient Indices
+    let resources = population.map(a => Math.max(0, a.energy)).sort((a, b) => a - b);
+    let cumulativeSum = resources.reduce((s, v) => s + v, 0);
+    let len = resources.length;
+
+    let gini = 0;
+    if (cumulativeSum > 0) {
+        let absoluteDiffSum = 0;
+        for (let i = 0; i < len; i++) {
+            for (let j = 0; j < len; j++) {
+                absoluteDiffSum += Math.abs(resources[i] - resources[j]);
+            }
+        }
+        gini = absoluteDiffSum / (2 * len * len * (cumulativeSum / len));
+    }
+
+    // B. Draw Lorenz Analytics Chart Curve (Calibrated to 300x110 Layout Frame)
+    const paddingX = 25;
+    const paddingY = 15;
+    const graphW = canvasW - (paddingX * 2); // 250px active mapping zone
+    const graphH = canvasH - (paddingY * 2); // 80px active mapping zone
+
+    lorenzCtx.strokeStyle = '#d7d3c9';
     lorenzCtx.lineWidth = 1;
-    lorenzCtx.beginPath();
-    lorenzCtx.moveTo(25, 155);
-    lorenzCtx.lineTo(225, 25);
-    lorenzCtx.stroke();
+    lorenzCtx.beginPath(); 
+    lorenzCtx.moveTo(paddingX, canvasH - paddingY); 
+    lorenzCtx.lineTo(canvasW - paddingX, paddingY); 
+    lorenzCtx.stroke(); // Base parity ideal curve line
 
-    lorenzCtx.strokeStyle = '#2c2a29'; // Curve track
+    lorenzCtx.strokeStyle = '#2c2a29';
     lorenzCtx.lineWidth = 1.5;
     lorenzCtx.beginPath();
-    lorenzCtx.moveTo(25, 155);
-
-    let cumulativePercentageWealth = 0;
-    for (let i = 0; i < n; i++) {
-        cumulativePercentageWealth += capitalVector[i] / totalBiomassWealth;
-        const xCoord = 25 + ((i + 1) / n) * 200;
-        const yCoord = 155 - (cumulativePercentageWealth * 130);
+    lorenzCtx.moveTo(paddingX, canvasH - paddingY);
+    
+    let runningSum = 0;
+    for (let i = 0; i < len; i++) {
+        runningSum += resources[i] / cumulativeSum;
+        const xCoord = paddingX + ((i + 1) / len) * graphW;
+        const yCoord = (canvasH - paddingY) - (runningSum * graphH);
         lorenzCtx.lineTo(xCoord, yCoord);
     }
     lorenzCtx.stroke();
 
-    return giniCoefficient;
+    // C. Draw Live Generational Lineage Cladograms
+    historicalLineageTally = {};
+    population.forEach(a => {
+        historicalLineageTally[a.lineageCode] = (historicalLineageTally[a.lineageCode] || 0) + 1;
+    });
+
+    let strainFrequencies = Object.entries(historicalLineageTally).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+    let drawingYOffset = 18;
+    strainFrequencies.forEach(([code, count]) => {
+        let percentShare = count / population.length;
+        
+        // Draw connection bracket lines scaled nicely into vertical telemetry suite
+        cladogramCtx.strokeStyle = '#2c2a29';
+        cladogramCtx.lineWidth = 1;
+        cladogramCtx.beginPath();
+        cladogramCtx.moveTo(20, canvasH / 2);
+        cladogramCtx.lineTo(45, drawingYOffset);
+        cladogramCtx.lineTo(105, drawingYOffset);
+        cladogramCtx.stroke();
+
+        // Output line name nodes
+        cladogramCtx.font = '9px monospace';
+        cladogramCtx.fillStyle = '#6e6b64';
+        cladogramCtx.fillText(`${code} (${Math.round(percentShare * 100)}%)`, 112, drawingYOffset + 3);
+        drawingYOffset += 18;
+    });
+
+    return gini;
 }
 
-// --- 7. PHASE-SPACE TRAJECTORY DOCK (LOTKA-VOLTERRA RADAR) ---
-function synchronizePhaseSpaceOrbit(cooperatorsCount, defectorsCount) {
+function processPhaseSpaceOrbit(coopCount, defCount) {
     phaseCtx.clearRect(0, 0, phaseCanvas.width, phaseCanvas.height);
     
-    const total = cooperatorsCount + defectorsCount || 1;
-    const xRatio = cooperatorsCount / total;
-    const yRatio = defectorsCount / total;
+    const canvasW = phaseCanvas.width;  // 300
+    const canvasH = phaseCanvas.height; // 110
 
-    // Append localized geometric coordinate nodes to tracking arrays
-    historicalTrajectory.push({ x: 30 + xRatio * 190, y: 130 - yRatio * 110 });
-    if (historicalTrajectory.length > 180) historicalTrajectory.shift(); // Temporal window clamp
+    const sumTotal = coopCount + defCount || 1;
+    const xRatio = coopCount / sumTotal;
+    const yRatio = defCount / sumTotal;
 
-    // Render historical trail lines on deep radar panel
-    phaseCtx.strokeStyle = 'rgba(62, 125, 94, 0.4)';
+    const padX = 35;
+    const padY = 20;
+    const graphW = canvasW - (padX * 2);
+    const graphH = canvasH - (padY * 2);
+
+    historicalTrajectory.push({ 
+        x: padX + (xRatio * graphW), 
+        y: (canvasH - padY) - (yRatio * graphH) 
+    });
+    if (historicalTrajectory.length > 200) historicalTrajectory.shift();
+
+    // Draw grid bounds for context
+    phaseCtx.strokeStyle = '#e6e4de';
     phaseCtx.lineWidth = 1;
+    phaseCtx.strokeRect(padX, padY, graphW, graphH);
+
+    // Draw real-time parametric track line
+    phaseCtx.strokeStyle = 'rgba(58, 97, 134, 0.45)';
+    phaseCtx.lineWidth = 1.25;
     phaseCtx.beginPath();
     if (historicalTrajectory.length > 0) phaseCtx.moveTo(historicalTrajectory[0].x, historicalTrajectory[0].y);
     for (let i = 1; i < historicalTrajectory.length; i++) {
@@ -311,181 +527,226 @@ function synchronizePhaseSpaceOrbit(cooperatorsCount, defectorsCount) {
     }
     phaseCtx.stroke();
 
-    // Flash tracking target coordinate point
+    // Active pointer coordinates node head
     if (historicalTrajectory.length > 0) {
-        const head = historicalTrajectory[historicalTrajectory.length - 1];
-        phaseCtx.fillStyle = '#3e7d5a';
-        phaseCtx.beginPath();
-        phaseCtx.arc(head.x, head.y, 3, 0, Math.PI * 2);
+        const structuralHead = historicalTrajectory[historicalTrajectory.length - 1];
+        phaseCtx.fillStyle = '#3a6186';
+        phaseCtx.beginPath(); 
+        phaseCtx.arc(structuralHead.x, structuralHead.y, 3.5, 0, Math.PI * 2); 
         phaseCtx.fill();
     }
 }
 
-// --- 8. NATURAL SELECTION PRESSURE & GENETIC MUTATION LOOPS ---
-function processEvolutionarySweep() {
-    // Decay aging social relationship links inside structural map maps
-    population.forEach(agent => {
-        for (let [opponentId, weight] of agent.adjacencyMatrix) {
-            agent.adjacencyMatrix.set(opponentId, weight - CONFIG.trustDecay);
-        }
-    });
-
-    // Prune starvation casualties from array registers
-    population = population.filter(a => a.energy > 0);
-    
-    // Terminate system execution loop if complete ecosystem collapse triggers
-    if (population.length < 8) { assembleEcosystem(); return; }
-
-    // Sort by physical fitness metrics (Energy pools accumulated)
-    population.sort((a, b) => b.energy - a.energy);
-
-    // Prune underperforming assets (Bottom 30% elimination sweep)
-    const survivorshipThreshold = Math.floor(population.length * 0.70);
-    population = population.slice(0, survivorshipThreshold);
-
-    // Replicate high-fitness lineages (Top 25% allocation models)
-    const eliteCount = Math.ceil(population.length * 0.25);
-    const dynamicOffspringPool = [];
-
-    for (let i = 0; i < eliteCount; i++) {
-        const parent = population[i];
-        parent.energy /= 2; // Mitosis energy division profile
-
-        // Replicate parent genome profiles exactly
-        const childGenome = { ...parent.genome };
-
-        // Apply continuous Gaussian genetic mutations across chromosomes
-        if (Math.random() < CONFIG.mutationRate) childGenome.G1_Altruism = Math.max(0, Math.min(1, childGenome.G1_Altruism + (Math.random() - 0.5) * 0.15));
-        if (Math.random() < CONFIG.mutationRate) childGenome.G2_Forgiveness = Math.max(0, Math.min(1, childGenome.G2_Forgiveness + (Math.random() - 0.5) * 0.15));
-        if (Math.random() < CONFIG.mutationRate) childGenome.G3_DesperationLimit = Math.max(2, Math.min(22, childGenome.G3_DesperationLimit + (Math.random() - 0.5) * 2));
-
-        const childNode = new ChromosomalAgent(
-            parent.x + (Math.random() - 0.5) * 12,
-            parent.y + (Math.random() - 0.5) * 12,
-            childGenome
-        );
-        childNode.energy = parent.energy;
-        dynamicOffspringPool.push(childNode);
-    }
-
-    // --- CENTRAL BANK MACROECONOMIC STABILIZER INTERVENTION ---
-    if (bankReserveEscrow > 5 && population.length > 0) {
-        let cooperatorsPool = population.filter(a => a.getExpressedPhenotype() === 'Cooperator' || a.getExpressedPhenotype() === 'Reciprocator');
-        
-        // Quantitative Easing (QE): Inject emergency asset subsidies specifically to cooperative anchors to shield systemic structural integrity
-        if (cooperatorsPool.length > 0) {
-            const subsidyDividend = bankReserveEscrow / cooperatorsPool.length;
-            cooperatorsPool.forEach(a => a.energy += subsidyDividend);
-            bankReserveEscrow = 0; // Liquidate escrow vault
-        }
-    }
-
-    population = population.concat(dynamicOffspringPool);
-    currentGeneration++;
-}
-
-// --- 9. SYNCHRONIZE TELEMETRY LABELS PANEL ---
-function flushTelemetryUI(giniIndex) {
+// ============================================================================
+// --- 8. SYSTEM SYNC & INTERFACE COMPONENT HARNESS --------------------------
+// ============================================================================
+function flushTelemetryUI(gini) {
     document.getElementById('valGen').innerText = String(currentGeneration).padStart(4, '0');
     document.getElementById('valPop').innerText = String(population.length).padStart(3, '0');
     document.getElementById('valBank').innerText = `${bankReserveEscrow.toFixed(1)}e`;
-    document.getElementById('valGini').innerText = giniIndex.toFixed(2);
-    document.getElementById('barGini').style.width = `${giniIndex * 100}%`;
+    document.getElementById('valGini').innerText = gini.toFixed(2);
+    document.getElementById('barGini').style.width = `${gini * 100}%`;
 
-    let defs = 0, cops = 0, recs = 0;
+    let cheaters = 0, generous = 0, copycats = 0;
     population.forEach(a => {
         const type = a.getExpressedPhenotype();
-        if (type === 'Defector' || type === 'Desperate_Defector') defs++;
-        else if (type === 'Cooperator') cops++;
-        else if (type === 'Reciprocator') recs++;
+        if (type === 'Cheater') cheaters++;
+        else if (type === 'Generous') generous++;
+        else if (type === 'Copycat') copycats++;
     });
 
-    const aggregateTotal = population.length || 1;
-    document.getElementById('pctDef').innerText = `${Math.round((defs / aggregateTotal) * 100)}%`;
-    document.getElementById('pctCop').innerText = `${Math.round((cops / aggregateTotal) * 100)}%`;
-    document.getElementById('pctRec').innerText = `${Math.round((recs / aggregateTotal) * 100)}%`;
+    const total = population.length || 1;
+    const cPct = (cheaters / total) * 100;
+    const gPct = (generous / total) * 100;
+    const rPct = (copycats / total) * 100;
 
-    synchronizePhaseSpaceOrbit(cops + recs, defs);
+    document.getElementById('pctDef').innerText = `${Math.round(cPct)}%`;
+    document.getElementById('pctCop').innerText = `${Math.round(gPct)}%`;
+    document.getElementById('pctRec').innerText = `${Math.round(rPct)}%`;
+
+    document.getElementById('statusDef').innerText = cPct > 50 ? "CRIMSON DOMINANCE" : "NOMINAL TRACE";
+    document.getElementById('statusCop').innerText = gPct > 50 ? "MUTUAL EXPANSION" : "STABLE POOL";
+    document.getElementById('statusRec').innerText = rPct > 50 ? "SYSTEM BALANCED" : "RECONCILING";
+
+    executeOracleNarration(gini, cPct, gPct, rPct);
+    processPhaseSpaceOrbit(generous + copycats, cheaters);
 }
 
-// --- 10. SYSTEM HIGH-FREQUENCY RUN LOOP CONTROL ---
+function pushTerminalLog(message) {
+    const logBox = document.getElementById('fedTerminalLog');
+    logBox.innerHTML += `<br>${message}`;
+    logBox.scrollTop = logBox.scrollHeight; // Auto anchor scroll track to follow new updates
+}
+
+// ============================================================================
+// --- 9. ENGINE RUNTIME CLOCK MECHANISM LOOP ---------------------------------
+// ============================================================================
 function coreSimulationEngine() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (isSimulationPaused) {
+        requestAnimationFrame(coreSimulationEngine);
+        return;
+    }
 
-    // Compute geographic resource field replenishment wave parameters
-    macroWorld.computeDynamics();
-    macroWorld.render();
+    // Execute multiple mathematical matrix updates per display frame call based on current velocity settings
+    for (let step = 0; step < simulationVelocity; step++) {
+        environmentalLandscape.evaporateAndDiffuse();
+        population.forEach(agent => agent.updatePhysics());
+        processGridCollisions();
 
-    // Physical position evaluation updates
-    population.forEach(agent => agent.updatePhysics());
-
-    // Spatial coordinate adjacency proximity check loops
-    for (let i = 0; i < population.length; i++) {
-        for (let j = i + 1; j < population.length; j++) {
-            const a = population[i];
-            const b = population[j];
-
-            const dx = b.x - a.x;
-            const dy = b.y - a.y;
-            const separationVector = Math.sqrt(dx * dx + dy * dy);
-
-            if (separationVector < CONFIG.interactionRadius) {
-                resolveSocioInteraction(a, b);
-            }
+        elapsedFrames++;
+        if (elapsedFrames >= CONFIG.generationFrames) {
+            elapsedFrames = 0;
+            runMacroEvolutionarySweep();
         }
     }
 
-    // Render spatial agent structures
+    // Clear and execute canvas draws once per frame cycle to save memory bandwidth
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    environmentalLandscape.renderOverlay();
     population.forEach(agent => agent.renderNode());
 
-    // Flush economic evaluations
-    const outputGiniValue = calculateGiniAndRenderLorenz();
-    flushTelemetryUI(outputGiniValue);
-
-    // Timeline tick updates
-    elapsedFrames++;
-    if (elapsedFrames >= CONFIG.generationFrames) {
-        elapsedFrames = 0;
-        processEvolutionarySweep();
-    }
+    const liveGiniIndex = calculateMetricsAndDrawCharts();
+    flushTelemetryUI(liveGiniIndex);
 
     requestAnimationFrame(coreSimulationEngine);
 }
 
-// --- 11. INTERVENTION INTERFACE EVENT LISTENER HOOKS ---
-document.getElementById('brushFamine').addEventListener('click', () => {
-    // Induce Systemic Shock: Force 70% of geographic grid resource patches into absolute structural desertification
-    for (let c = Math.floor(macroWorld.cols * 0.15); c < Math.floor(macroWorld.cols * 0.85); c++) {
-        for (let r = Math.floor(macroWorld.rows * 0.15); r < Math.floor(macroWorld.rows * 0.85); r++) {
-            macroWorld.resources[c][r] = 0;
-            macroWorld.thermalWaste[c][r] = 1.5; // Trigger extreme heat degradation loops
-        }
+function reinitializeEcosystem() {
+    population = [];
+    uniqueStrainRegistry.clear();
+    for (let i = 0; i < CONFIG.popSize; i++) {
+        population.push(new ChromosomalAgent(Math.random() * canvas.width, Math.random() * canvas.height));
+    }
+}
+reinitializeEcosystem();
+
+// ============================================================================
+// --- 10. CONTROLLER WIRE EVENTS INTEGRATIONS --------------------------------
+// ============================================================================
+document.getElementById('btnPause').addEventListener('click', (e) => {
+    isSimulationPaused = !isSimulationPaused;
+    e.target.innerText = isSimulationPaused ? "▶ Resume System" : "⏸ Pause System";
+    document.getElementById('systemStatus').innerText = isSimulationPaused ? "SYSTEM PAUSED" : "SANDBOX ACTIVE";
+});
+
+document.getElementById('sliderSpeed').addEventListener('input', (e) => {
+    simulationVelocity = parseInt(e.target.value);
+    document.getElementById('lblSpeed').innerText = `${simulationVelocity}x`;
+});
+
+document.getElementById('btnToggleBankPolicy').addEventListener('click', (e) => {
+    if (centralBankPolicy === "QE") {
+        centralBankPolicy = "AUSTERITY";
+        e.target.innerText = "Switch to QE";
+        document.getElementById('lblBankPolicy').innerText = "Policy: Austerity";
+        pushTerminalLog("[SYS] REGULATORY INVERSION: AUSTERITY ENFORCED.");
+    } else {
+        centralBankPolicy = "QE";
+        e.target.innerText = "Switch to Austerity";
+        document.getElementById('lblBankPolicy').innerText = "Policy: QE Active";
+        pushTerminalLog("[SYS] REGULATORY INVERSION: QE QUANTUM MATRIX ONLINE.");
     }
 });
 
-document.getElementById('brushPlague').addEventListener('click', () => {
-    // Strategy Mutator plague vector: Force half the active population's Altruism chromosome ($G_1$) to crash to absolute 0
-    population.forEach((agent, index) => {
-        if (index % 2 === 0) {
-            agent.genome.G1_Altruism = 0.05; // Force pure predatory behaviors
-            agent.genome.G3_DesperationLimit = 20.0; // Universal survival panic threshold
-        }
-    });
+// God Mode Intervention Hooks
+document.getElementById('brushFamine').addEventListener('click', () => {
+    population.forEach(a => a.energy *= 0.3); // Wipe out 70% of energy reserves immediately
+    pushTerminalLog("[GOD-MODE] INDUCED THERMODYNAMIC CRISIS ZONE.");
 });
 
-document.getElementById('bankIntervene').addEventListener('click', () => {
-    // Central Bank Emergency Injection: Artificially mint 80 energy units straight into the escrow vault to save collapsing nodes
-    bankReserveEscrow += 80.0;
+document.getElementById('brushPlague').addEventListener('click', () => {
+    population.forEach(a => {
+        if(Math.random() > 0.4) {
+            a.genome.G1_Altruism = 0.05; // Force immediate mutation into highly exploitative Cheaters
+            a.lineageCode = "Strain-PLAGUE-666";
+        }
+    });
+    pushTerminalLog("[GOD-MODE] INJECTED IDEOLOGICAL CONTAGION VECTORS.");
 });
 
 document.getElementById('simReset').addEventListener('click', () => {
-    currentGeneration = 1;
-    elapsedFrames = 0;
-    bankReserveEscrow = 0;
+    currentGeneration = 1; elapsedFrames = 0; bankReserveEscrow = 100.0;
     historicalTrajectory = [];
-    macroWorld.initializeFields();
-    assembleEcosystem();
+    environmentalLandscape.initializeFields();
+    reinitializeEcosystem();
+    pushTerminalLog("[SYS] FULL SANDBOX MATRICES REINITIALIZED.");
 });
 
-// Run execution loop
+// Interactive Live Legend Ticker Hover Highlighting Handlers
+document.querySelectorAll('.demo-row').forEach(element => {
+    element.addEventListener('mouseenter', (e) => {
+        activeHoverArchetype = e.currentTarget.getAttribute('data-archetype');
+    });
+    element.addEventListener('mouseleave', () => {
+        activeHoverArchetype = null;
+    });
+});
+
+// --- 11. TIME-PARADIGM CAMPAIGN CONFIGURATIONS SELECTORS ---
+function resetActivePresetClass(targetButton) {
+    document.querySelectorAll('.btn-preset').forEach(b => b.classList.remove('active'));
+    targetButton.classList.add('active');
+}
+
+document.getElementById('presetDefault').addEventListener('click', (e) => {
+    resetActivePresetClass(e.target);
+    reinitializeEcosystem();
+    pushTerminalLog("[PARADIGM] LOADED STANDARD SPECTRUM BASELINE.");
+});
+
+document.getElementById('presetCommons').addEventListener('click', (e) => {
+    resetActivePresetClass(e.target);
+    population = [];
+    // Injection mix: 90% Pure Cooperators, 10% Aggressive Defectors
+    for (let i = 0; i < CONFIG.popSize; i++) {
+        let isDefector = i < (CONFIG.popSize * 0.10);
+        let genome = {
+            G1_Altruism: isDefector ? 0.05 : 0.95,
+            G2_Forgiveness: isDefector ? 0.05 : 0.95,
+            G3_DesperationLimit: 4.0
+        };
+        population.push(new ChromosomalAgent(
+            Math.random() * canvas.width, 
+            Math.random() * canvas.height, 
+            genome, 
+            isDefector ? "Strain-TRAGEDY-DEF" : "Strain-TRAGEDY-COOP"
+        ));
+    }
+    pushTerminalLog("[PARADIGM] TRAGEDY OF COMMONS INITIALIZED: 90% COOP / 10% DEF.");
+});
+
+document.getElementById('presetLateCap').addEventListener('click', (e) => {
+    resetActivePresetClass(e.target);
+    population = [];
+    // Inject extreme metabolic costs, low initial capital pools, and force austerity mode
+    for (let i = 0; i < CONFIG.popSize; i++) {
+        let agent = new ChromosomalAgent(Math.random() * canvas.width, Math.random() * canvas.height);
+        agent.energy = 10.0; // Stranded starting capital
+        population.push(agent);
+    }
+    centralBankPolicy = "AUSTERITY";
+    document.getElementById('lblBankPolicy').innerText = "Policy: Austerity";
+    document.getElementById('btnToggleBankPolicy').innerText = "Switch to QE";
+    pushTerminalLog("[PARADIGM] LATE-STAGE INTERSECT ACTIVE: LOW CAPITAL DRIFT.");
+});
+
+document.getElementById('presetUtopia').addEventListener('click', (e) => {
+    resetActivePresetClass(e.target);
+    population = [];
+    // Deploy an isolated high-density cluster of pure Copycats to trace protected cooperative loops
+    for (let i = 0; i < CONFIG.popSize; i++) {
+        let inCluster = i < (CONFIG.popSize * 0.60);
+        let x = inCluster ? (canvas.width/2 + (Math.random()-0.5)*120) : (Math.random()*canvas.width);
+        let y = inCluster ? (canvas.height/2 + (Math.random()-0.5)*120) : (Math.random()*canvas.height);
+        let genome = {
+            G1_Altruism: inCluster ? 0.50 : Math.random(),
+            G2_Forgiveness: inCluster ? 0.50 : Math.random(),
+            G3_DesperationLimit: 3.0
+        };
+        population.push(new ChromosomalAgent(x, y, genome, inCluster ? "Strain-UTOPIAN-CORE" : null));
+    }
+    pushTerminalLog("[PARADIGM] COOPERATIVE ISOLATION TRUST LOOP RUNNING.");
+});
+
+// Ignition Execution
 coreSimulationEngine();
