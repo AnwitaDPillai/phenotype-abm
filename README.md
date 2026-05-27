@@ -2,7 +2,8 @@
 
 An open-source computational sandbox translating game theory and evolutionary dynamics into fluid visual simulation.
 
-**[View the Live Sandbox](https://anwitadpillai.github.io/phenotype-abm/)**
+* **Primary (Vercel):** [Launch Live Sandbox](https://phenotype-abm.vercel.app/)
+* **Secondary (GitHub Pages):** [View Mirror Link](https://anwitadpillai.github.io/phenotype-abm/)
 
 ---
 
