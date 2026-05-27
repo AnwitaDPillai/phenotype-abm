@@ -16,11 +16,11 @@ An open-source computational sandbox translating game theory and evolutionary dy
 
 <br>
 
-<!-- The Video -->
-<video width="700" controls muted autoplay playsinline>
-  <source src="assets/Phenotype.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+<br>
+
+<!-- Direct Link to the Video File -->
+**[▶ Watch Full-Resolution Simulation Demo](assets/Phenotype.mp4)**  
+*Opens in a new tab; file size: 6MB*
 
 <p><em>A brief look at the agent-based dynamics in action.</em></p>
 
