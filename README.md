@@ -7,6 +7,27 @@ An open-source computational sandbox translating game theory and evolutionary dy
 
 ---
 
+## Simulation Overview
+
+<div align="center">
+
+<!-- The Screenshot -->
+<img src="assets/Phenotype.jpg" alt="Phenotype Dashboard" width="700"/>
+
+<br>
+
+<!-- The Video -->
+<video width="700" controls>
+  <source src="assets/Phenotype.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+<p><em>A brief look at the agent-based dynamics in action.</em></p>
+
+</div>
+
+---
+
 ## Core Simulation Concepts
 
 ### The Prisoner's Dilemma (Iterated)
