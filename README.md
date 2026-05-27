@@ -20,7 +20,7 @@ An open-source computational sandbox translating game theory and evolutionary dy
 
 <!-- Direct Link to the Video File -->
 **[▶ Watch Full-Resolution Simulation Demo](assets/Phenotype.mp4)**  
-*Opens in a new tab; file size: 6MB*
+*Opens in a new tab; mp4 file size: 6.35MB*
 
 <p><em>A brief look at the agent-based dynamics in action.</em></p>
 
@@ -53,7 +53,7 @@ Every agent carries a set of continuous genetic parameters that map to one of th
 | **The Generous (Cooperator)** | Always cooperates. Thrives in trusting clusters but is vulnerable to exploitation by cheaters. | Green |
 | **The Copycat (Tit-for-Tat)** | Starts by cooperating, then mirrors the opponent's last move. Enforces accountability without aggression. | Blue |
 
-An agent's genome also includes **forgiveness** (how likely it is to forgive past defections) and a **desperation threshold**—if energy drops below this limit, even a cooperator will defect to survive.
+An agent's genome also includes **forgiveness** (how likely it is to forgive past defections) and a **desperation threshold**. If energy drops below this limit, even a cooperator will defect to survive.
 
 ### Generations and Evolution
 
@@ -101,7 +101,7 @@ The simulation runs in a **three-column research dashboard**:
 
 ### God Mode Interventions
 Three buttons let you play macro-level crisis designer:
-- **Induce Thermodynamic Famine**: Instantly wipes 70% of all agent energy reserves.
+- **Induce Thermodynamic Famine**: Instantly wipes out 70% of all agent energy reserves.
 - **Inject Ideological Mutation**: Forces 60% of agents to become extreme Cheaters with a shared "Plague" lineage.
 - **Reinitialize System Matrix**: Full reset to default starting conditions.
 
@@ -125,7 +125,7 @@ Hover over any strategy name in the telemetry panel to dim all other agents on t
 Four continuously updated mini-graphs track the system's health:
 - **Lorenz Curve**: Visualizes wealth inequality against the line of perfect equality.
 - **Lineage Cladogram**: Shows the most common genetic family trees and their population share.
-- **Phase Trajectory**: Plots the ratio of cooperators to defectors over time in a predator-prey phase space, revealing cyclic dynamics.
+- **Phase Trajectory**: Plots the ratio of cooperators to defectors over time in a predator-prey phase space to reveal cyclic dynamics.
 
 ---
 
@@ -153,7 +153,7 @@ Four continuously updated mini-graphs track the system's health:
 
 ## Expected Behaviors
 
-**Generations 1-50:** Mixed strategies, relatively stable
+**Generations 1-50:** Mixed strategies; relatively stable
 
 **Generations 50-200:** One strategy (usually Defector) dominates
 
@@ -162,7 +162,7 @@ Four continuously updated mini-graphs track the system's health:
 - Cooperators recover (defectors have nothing to exploit)
 - Cycle repeats
 
-**With QE Policy:** Inequality contained, system more stable
+**With QE Policy:** Inequality contained; system more stable
 
 **With Austerity:** Inequality spikes, crisis cycles sharper
 
@@ -173,10 +173,10 @@ Four continuously updated mini-graphs track the system's health:
 The Prisoner's Dilemma is usually studied in textbooks as a static payoff matrix.
 
 But real life is:
-- **Spatial** (you interact with neighbors, not random strangers)
+- **Spatial** (you interact with neighbors, not just random strangers)
 - **Temporal** (you remember past interactions)
-- **Ecological** (resources vary, scarcity matters)
-- **Institutional** (governments, banks, policies exist)
+- **Ecological** (resources vary, so scarcity matters)
+- **Institutional** (governments, banks, and policies exist)
 - **Evolutionary** (behaviors that work spread)
 
 Phenotype makes all of this visible and interactive.
