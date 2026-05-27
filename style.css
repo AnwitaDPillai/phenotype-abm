@@ -12,6 +12,12 @@
     --color-cobalt: #3a6186;
     --color-gold: #c29238;
     --color-terminal: #25402a;
+    
+    /* Advanced Eco-Monetary & Macro-Shocks Expansion Colors */
+    --color-debt-amber: #d97706;
+    --color-error-red: #dc2626;
+    --color-resource-blue: #2563eb;
+    --color-velocity-purple: #7c3aed;
 }
 
 body {
@@ -139,16 +145,12 @@ body {
     text-align: justify;
 }
 
-.prose-block ul {
-    margin: 0 0 1rem 0;
-    padding-left: 1.2rem;
-    font-size: 0.8rem;
-    color: #444240;
-}
-
-.prose-block li {
-    margin-bottom: 0.3rem;
-    line-height: 1.4;
+.prose-block code {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 1px 4px;
+    border-radius: 2px;
+    font-family: monospace;
+    font-size: 0.75rem;
 }
 
 /* Equation Containment System: Avoids Cross-Panel bleeding */
@@ -177,24 +179,6 @@ body {
     box-sizing: border-box;
 }
 
-.matrix-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.7rem;
-    margin: 1rem 0;
-}
-
-.matrix-table th, .matrix-table td {
-    border: 1px solid var(--border-line);
-    padding: 6px 8px;
-    text-align: center;
-}
-
-.matrix-table th {
-    background-color: rgba(0, 0, 0, 0.03);
-    font-weight: 600;
-}
-
 /* --- 4. COLUMN 2: PRIMARY VISUAL KINETIC FIELD --- */
 .simulation-panel {
     background-color: #faf9f6; /* Clinical bone background */
@@ -205,7 +189,6 @@ body {
     padding: 1.25rem 2rem;
 }
 
-/* CRITICAL FIX: Converted Oracle Container to support wrapped multiline logs */
 .oracle-container {
     width: 100%;
     max-width: 620px;
@@ -214,7 +197,7 @@ body {
     padding: 10px 14px;
     box-sizing: border-box;
     display: flex;
-    align-items: flex-start; /* Aligns badge smoothly with wrapped prose rows */
+    align-items: flex-start;
     gap: 12px;
     border-radius: 2px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
@@ -229,7 +212,7 @@ body {
     padding: 3px 6px;
     letter-spacing: 0.06em;
     border-radius: 1px;
-    white-space: nowrap; /* Keeps badge structural under stress */
+    white-space: nowrap;
     margin-top: 1px;
 }
 
@@ -241,7 +224,7 @@ body {
     line-height: 1.4;
     overflow: visible;
     text-overflow: clip;
-    white-space: normal; /* CRITICAL FIX: Eradicates horizontal truncation and ellipsis clip */
+    white-space: normal;
     word-break: break-word;
 }
 
@@ -256,6 +239,8 @@ body {
 .main-sim-container canvas {
     max-width: 100%;
     height: auto;
+    /* Stylized conceptual frame for physical obstacles and resource clusters */
+    background: #fdfdfb;
 }
 
 /* System Clock Controllers & Velocity Widgets */
@@ -385,6 +370,14 @@ body {
     flex-direction: column;
 }
 
+/* Highlights new endogenous AI Central Bank & Credit Engine readouts */
+.metric-box.structural-highlight {
+    background: rgba(0, 0, 0, 0.02);
+    padding: 4px 6px;
+    border-radius: 2px;
+    border-left: 2px solid var(--text-muted);
+}
+
 .metric-label {
     font-size: 0.58rem;
     font-weight: 800;
@@ -405,6 +398,21 @@ body {
     color: #a4761c;
 }
 
+.metric-value.ERROR {
+    color: var(--color-debt-amber);
+}
+
+/* Alert formatting for micro credit crashes */
+.metric-value.CRITICAL-SHOCK {
+    color: var(--color-error-red);
+    animation: flashAlert 1s infinite alternate;
+}
+
+@keyframes flashAlert {
+    0% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
 .progress-track {
     width: 100%;
     height: 3px;
@@ -417,7 +425,12 @@ body {
     height: 100%;
     background: var(--text-charcoal);
     width: 0%;
-    transition: width 0.3s ease;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dynamic slider fill colors matching adaptive systems */
+#barTaxRate {
+    background: var(--color-cobalt);
 }
 
 /* INTERACTIVE LIVE LEGEND HOVER STATES */
@@ -452,6 +465,10 @@ body {
     align-items: flex-end;
 }
 
+.demo-pct {
+    font-weight: 700;
+}
+
 .micro-status {
     font-size: 0.52rem;
     font-weight: 900;
@@ -474,7 +491,7 @@ body {
 /* CENTRAL BANK INSTITUTIONAL INTEGRATED MICRO-TERMINAL */
 .bank-policy-panel {
     background: #242321; /* Charcoal vintage console block */
-    padding: 10px 12px;
+    padding: 12px;
     border-radius: 2px;
     border: 1px solid #363431;
 }
@@ -483,7 +500,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
 }
 
 .bank-policy-header h2 {
@@ -494,6 +511,23 @@ body {
     letter-spacing: 0.06em;
     margin: 0;
     text-transform: uppercase;
+}
+
+.bank-sub-telemetry {
+    display: flex;
+    margin-bottom: 6px;
+    border-bottom: 1px solid #363431;
+    padding-bottom: 4px;
+}
+
+.bank-sub-telemetry small {
+    color: #8c8983;
+    font-family: monospace;
+    font-size: 0.58rem;
+}
+
+.bank-sub-telemetry span {
+    color: var(--bg-ivory);
 }
 
 .policy-toggle-group {
@@ -518,6 +552,7 @@ body {
     padding: 2px 5px;
     cursor: pointer;
     border-radius: 1px;
+    transition: background 0.1s ease;
 }
 
 .btn-toggle:hover {
@@ -530,13 +565,13 @@ body {
     font-size: 0.62rem;
     line-height: 1.4;
     color: #4af626; /* Neo-phosphor amber/green output print */
-    height: 52px;
+    height: 56px;
     overflow-y: hidden;
     opacity: 0.88;
     text-shadow: 0 0 2px rgba(74, 246, 38, 0.3);
 }
 
-/* CRITICAL FIX: Converted layout into a strict stacked column structure to prevent offscreen horizontal overflow */
+/* DIAGNOSTIC GRAPH SPECIFICATIONS: Stacked column configuration */
 .diagnostic-grid-layout {
     display: flex;
     flex-direction: column;
@@ -570,5 +605,6 @@ body {
     border-color: #2c2a29;
 }
 
+/* Utility Helpers */
 .monospace { font-family: monospace; }
 .text-bold { font-weight: bold; }

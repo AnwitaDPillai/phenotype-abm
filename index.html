@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phenotype: An ABM</title>
+    <title>Phenotype: An Advanced ABM</title>
     <link rel="stylesheet" href="style.css">
     
     <script>
@@ -48,7 +48,7 @@
             </section>
 
             <section class="prose-block">
-                <h2>2. Epigenetic Genomic Strand</h2>
+                <h2>2. Epigenetic Genomic Strand &amp; Lineage</h2>
                 <p>Entities carry an embedded continuous chromosome matrix that maps directly into distinct interactive strategy behavioral phenotypes:</p>
                 
                 <div class="equation-box">
@@ -60,18 +60,25 @@
                 </div>
                 
                 <p>
-                    Reserves dipping below the threshold dictated by $G_3$ trigger an emergency baseline override, forcing immediate defection to avoid metabolic extinction.
+                    Reserves dipping below the threshold dictated by $G_3$ trigger an emergency baseline override, forcing immediate defection to avoid metabolic extinction. 
+                    <strong>Multi-Locus Cross-Over</strong> enables sexual reproduction via a midpoint mix of maternal and paternal masks, tracking true hybrid vigor.
                 </p>
+                <p>
+                    <strong>Kin Selection:</strong> Opponents read matched <code>lineageCode</code> markers. If kin-proximity is discovered, baseline altruism ($G_1$) is scaled by coefficient $K$:
+                </p>
+                <div class="equation-box">
+                    $$ G_{1\text{,effective}} = \min(1.0, G_1 \cdot K) $$
+                </div>
             </section>
 
             <section class="prose-block">
-                <h2>3. Spatial Signal Signaling Matrix</h2>
+                <h2>3. Spatial Signal Matrix &amp; Geography</h2>
                 <p>Actions leave localized chemical footprints ($\tau$) across a secondary spatial memory terrain matrix:</p>
                 <div class="equation-box">
                     $$ \tau_{t+1} = \tau_t(1 - \gamma) + \Sigma \Delta \kappa $$
                 </div>
                 <p>
-                    Entities sample the floor tiles directly beneath them. Entering an environment poisoned by historical defection spikes triggers defensive pre-emptive defection strategies.
+                    <strong>Geomorphic Obstacles:</strong> Static topographical polygons (Mountains, Borders) restrict physical coordination. Under bounded rationality, personal history logs decay dynamically, forcing dependence on this immediate chemical pheromone grid.
                 </p>
             </section>
         </aside>
@@ -136,6 +143,17 @@
                     <span class="metric-label">CENTRAL ESCROW POOL</span>
                     <span class="metric-value ESCROW" id="valBank">00.00e</span>
                 </div>
+
+                <div class="metric-box structural-highlight">
+                    <span class="metric-label">ADAPTIVE AI TAX RATE</span>
+                    <span class="metric-value monospace" id="valTaxRate">6.0%</span>
+                    <div class="progress-track"><div class="progress-fill" id="barTaxRate" style="width: 24%"></div></div>
+                </div>
+
+                <div class="metric-box structural-highlight">
+                    <span class="metric-label">AGGREGATE SYSTEM DEBT</span>
+                    <span class="metric-value ERROR" id="valTotalDebt">0.00e</span>
+                </div>
             </div>
 
             <hr class="panel-divider">
@@ -169,15 +187,20 @@
 
             <div class="bank-policy-panel">
                 <div class="bank-policy-header">
-                    <h2>Central Bank Registry</h2>
+                    <h2>Central Bank Registry (AI Feedback Loop)</h2>
                     <div class="policy-toggle-group">
                         <label class="toggle-label" id="lblBankPolicy">Policy: QE Active</label>
                         <button class="btn-toggle" id="btnToggleBankPolicy">Switch to Austerity</button>
                     </div>
                 </div>
+                <div class="bank-sub-telemetry">
+                    <small>System Default Incidents: <span id="valDefaultShocks" class="monospace text-bold">0</span></small>
+                    <small style="margin-left: 1rem;">Active Loans: <span id="valActiveLoans" class="monospace text-bold">0</span></small>
+                </div>
                 <div class="terminal-log" id="fedTerminalLog">
                     [SYS] SECURE SYSTEM INITIALIZED.<br>
-                    [BANK] LOCKING TARGET STABILITY METRICS...
+                    [BANK] AUTONOMOUS FEEDBACK TARGETING ENGAGED (TAX VARIABLE: 0% - 25%)...<br>
+                    [CREDIT] LEDGER ALLOCATED FOR EMERGENCY DESTRUCTIVE DESPERATION LOANS...
                 </div>
             </div>
 
@@ -191,7 +214,13 @@
                     </div>
                 </div>
                 <div>
-                    <span class="metric-label">GENETIC LINEAGE CLADOGRAM</span>
+                    <span class="metric-label">FORAGING SATURATION VS KINETIC ACTIVITY</span>
+                    <div class="canvas-container diagnostic-container">
+                        <canvas id="resourceChartCanvas" width="300" height="110"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <span class="metric-label">GENETIC LINEAGE CLADOGRAM (SEXUAL HYBRIDS)</span>
                     <div class="canvas-container diagnostic-container">
                         <canvas id="cladogramCanvas" width="300" height="110"></canvas>
                     </div>
