@@ -2,7 +2,11 @@
 
 An open-source computational sandbox translating game theory and evolutionary dynamics into fluid visual simulation.
 
-[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen.svg)](https://anwitadpillai.github.io/phenotype-abm/)
+<div align="left">
+  <a href="https://anwitadpillai.github.io/phenotype-abm/">
+    <img src="https://img.shields.io/badge/🚀_Launch_Live_Sandbox-3B6186?style=for-the-badge&logo=rocket&logoColor=white" alt="Live Demo">
+  </a>
+</div>
 
 ---
 
