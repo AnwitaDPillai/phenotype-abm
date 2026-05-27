@@ -2,7 +2,7 @@
 
 An open-source computational sandbox translating game theory and evolutionary dynamics into fluid visual simulation.
 
-**Live Sandbox:** [Deploying Soon]
+[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen.svg)](https://anwitadpillai.github.io/phenotype-abm/)
 
 ---
 
@@ -160,3 +160,7 @@ But real life is:
 Phenotype makes all of this visible and interactive.
 
 You can watch cooperation and defection compete under realistic constraints. You can see how institutions shape strategy evolution. You can test policy interventions and watch system-wide consequences unfold.
+
+---
+### Acknowledgements
+This project was developed using a human-in-the-loop workflow, leveraging AI tools for structural organization and technical drafting. All logic, implementation, and system design were reviewed, verified, and refined by Anwita D Pillai.
