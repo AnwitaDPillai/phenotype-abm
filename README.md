@@ -1,124 +1,150 @@
-# Phenotype: An Agent-Based Model (ABM)
+# Phenotype: An Evolutionary Agent-Based Model
 
-Phenotype is an Agent-Based Model (ABM) designed to simulate the co-evolution of game-theoretic behaviors, maternal lineages, and spatial macroeconomic policies. Built with vanilla JavaScript using HTML5 Canvases, the simulation maps microscopic interactions (Iterated Prisoner’s Dilemma matches) to global emergent behaviors, including tracking resource wealth distributions, spatial memory gradients, and lineage tracing.
+An open-source computational sandbox translating game theory and evolutionary dynamics into fluid visual simulation.
 
----
-
-## 1. System Core Architecture & Configurable Thresholds
-
-The simulation runs on a continuous coordinate environment where agents interact based on spatial proximity. System stability and interaction frequency are regulated by fixed structural constants:
-
-*   **Population Size (`popSize: 150`)**: The target count of initialization agents injected into the sandbox workspace.
-*   **Interaction Radius (`interactionRadius: 9`)**: The physical distance threshold within which two agents register an collision, locking them into a game-theoretic interaction phase.
-*   **Base Metabolic Cost (`baseMetabolicCost: 0.05`)**: The baseline continuous energy drain subtracted from an agent every execution frame.
-*   **Generation Frames (`generationFrames: 500`)**: The duration of an evolutionary epoch. When the global frame counter reaches this threshold, selection and replication scripts trigger.
-*   **Mutation Rate (`mutationRate: 0.12`)**: The probability (12%) that a newly spawned child agent undergoes genetic drift, deviating from its parent's phenotypic strategy parameters.
-*   **Base Tax Rate (`baseTaxRate: 0.06`)**: A flat 6% tariff applied to all individual transaction yields generated during Prisoner’s Dilemma matches, which directly funds the Central Bank Escrow pool.
-*   **Pheromone Grid Resolution (`pheromonesResolution: 20`)**: The cell tile spacing size (in pixels) used to subdivide the canvas for spatial signaling memory updates.
+**Live Sandbox:** [Deploying Soon]
 
 ---
 
-## 2. Epigenetic Entity Structure & The Genome Array
+## What is Phenotype?
 
-Each agent (`ChromosomalAgent`) possesses an individual identity code, kinetic vectors, an energy pool (asset capital), and a three-gene locus (`genome`) that governs decision-making behavior:
+Phenotype is an interactive simulation that places hundreds of tiny, autonomous agents onto a 2D grid. Each agent follows a simple behavioral strategy—cooperate, cheat, or copy—and when two agents bump into each other, they play a round of the famous **Prisoner's Dilemma**. Over time, successful strategies survive and reproduce; unsuccessful ones die out. The result is a real-time evolutionary arms race you can watch, tweak, and crash.
 
-### The Gene Locus
-1.  **G1_Altruism ($[0.0, 1.0]$)**: Dictates baseline willingness to cooperate. Lower ranges signify predatory tendencies.
-2.  **G2_Forgiveness ($[0.0, 1.0]$)**: Controls memory clearance behavior. Dictates whether an agent overrides environmental defection signals or historical betrayal metrics.
-3.  **G3_DesperationLimit ($[4.0, 12.0]$)**: The metabolic stress threshold. If an agent's energy reserves fall below this value, it overrides its genetic strategy to engage in absolute defection to survive starvation.
-
-### Phenotypic Classifications
-An agent's dynamic state maps to one of three observable behavioral strategies:
-*   **Cheater**: Expressed if $G1 < 0.35$ or if the agent’s energy dips below its desperation limit ($G3$). Cheaters consistently default to defection.
-*   **Generous**: Expressed if $G1 > 0.65$ and $G2 > 0.55$. Generous agents prioritize cooperation and actively attempt to heal broken cooperation networks.
-*   **Copycat**: The baseline intermediate strategy. It mimics the historical action last chosen by a specific opponent during their prior interaction encounter.
-
-### Maternal Lineages
-Every agent carries a maternal string token (`lineageCode`), assigned at initialization or inherited exactly from its clonal parent line (e.g., `Strain-A-412`). This acts as an evolutionary tag to trace lineage persistence, dominance, and speciation rates across multi-generational spans without affecting gameplay mechanics.
+The simulation doesn't just display numbers. It visualizes **wealth inequality**, **strategy demographics**, **genetic lineages**, and even **macroeconomic policy interventions**—all within a clean, print-editorial dashboard inspired by book design.
 
 ---
 
-## 3. High-Performance Spatial Indexing Matrix
+## Core Simulation Concepts
 
-To avoid the performance degradation of an $O(N^2)$ brute-force distance calculation loop among 150+ entities, the physics engine implements a grid-based spatial partition system matching an $O(N)$ lookup footprint:
+### The Prisoner's Dilemma (Iterated)
 
-1.  The spatial dimensions of the simulation canvas are partitioned into square cells proportional to the agent interaction diameter ($CellSize = InteractionRadius \times 2$).
-2.  At the beginning of each physics update, agents are indexed into array buckets corresponding to their grid cell based on their coordinates.
-3.  The algorithm evaluates collision checks exclusively within an agent’s native cell and its immediate adjacent neighbor cells (using structural offsets to avoid redundant calculations).
-4.  When two agents overlap ($Distance < 9\text{px}$), they exchange velocity vectors (elastic physical bounce) and lock into the interaction payoff engine.
+When two agents meet, they each decide to **Cooperate** or **Defect** without knowing the other's choice. Their payoffs follow this classic matrix:
 
----
+| Agent A | Agent B | A's payoff | B's payoff |
+|:---|:---|:---|:---|
+| Cooperate | Cooperate | +3.0 | +3.0 |
+| Cooperate | Defect    | 0.0  | +5.0 |
+| Defect    | Cooperate | +5.0 | 0.0  |
+| Defect    | Defect    | +1.0 | +1.0 |
 
-## 4. Game-Theoretic Interaction Mechanics
+Agents remember past encounters (Copycats use this memory) and can adjust their behavior based on local chemical signals left by others.
 
-When a spatial collision occurs, agents play an Iterated Prisoner's Dilemma round using decisions calculated from their genomes, transaction logs, and local environmental variables:
+### Strategy Phenotypes
 
-| Agent A Choice | Agent B Choice | Raw Payoff A | Raw Payoff B |
-| :--- | :--- | :--- | :--- |
-| **Cooperate** | **Cooperate** | +3.0 Energy | +3.0 Energy |
-| **Defect** | **Cooperate** | +5.0 Energy |  0.0 Energy |
-| **Cooperate** | **Defect** |  0.0 Energy | +5.0 Energy |
-| **Defect** | **Defect** | +1.0 Energy | +1.0 Energy |
+Every agent carries a set of continuous genetic parameters that map to one of three observable strategies:
 
-### Institutional Fines & Taxation
-*   **Anti-Social Penalty**: If an agent executes $\ge 4$ consecutive defections, it is flagged as a systemic risk. Its transaction yield is penalized by $-0.8$ energy, which is siphoned into the bank reserves.
-*   **Macro Tariff**: The flat tax ($6\%$) is deducted from every yield payout and added to the `bankReserveEscrow` pool.
+| Strategy | Behavior | Color |
+|:---|:---|:---|
+| **The Cheater (Defector)** | Always defects. Maximizes short-term gains but risks system collapse if too many exploit cooperators. | Red |
+| **The Generous (Cooperator)** | Always cooperates. Thrives in trusting clusters but is vulnerable to exploitation by cheaters. | Green |
+| **The Copycat (Tit-for-Tat)** | Starts by cooperating, then mirrors the opponent's last move. Enforces accountability without aggression. | Blue |
 
-### Dual-Layer Spatial Trust Pheromones
-The environment tracks behavior over time through a coordinate matrix (`DualLayerPheromoneGrid`). 
-*   Cooperation and Defection events bleed digital signatures ($+0.25$ intensity) into localized tracking cells.
-*   Pheromones steadily evaporate across execution frames at a rate of $1.5\%$ per step (`multiplier: 0.985`).
-*   Agents scan local tiles before choosing an action. If the defection signature density exceeds $60\%$, agents with a forgiveness index below $0.75$ will override their normal behavior and choose to **Defect**, simulating localized systemic panic.
+An agent's genome also includes **forgiveness** (how likely it is to forgive past defections) and a **desperation threshold**—if energy drops below this limit, even a cooperator will defect to survive.
 
----
+### Generations and Evolution
 
-## 5. Selection and Evolutionary Sweeps
+Every 500 simulation frames, a **generation** ends:
 
-When `elapsedFrames` reaches `500`, the environment stops spatial execution to simulate natural selection, generational culling, and clonal reproduction:
+1. **Bottom 20%** of agents (by energy) are **pruned**.
+2. **Top 20%** replicate, passing their genes (and lineage codes) to offspring.
+3. A **12% mutation rate** introduces random variations in altruism and forgiveness, mimicking genetic drift.
 
-1.  **Starvation Filter**: Agents whose energy pools dropped to $\le 0$ during the epoch are eliminated.
-2.  **Asset Stratification**: The remaining population is sorted in descending order based on accumulated energy assets.
-3.  **The Bottom 20% Pruning**: The lowest $20\%$ of the population distribution is permanently removed from the ecosystem.
-4.  **The Top 20% Elite Replication**: The highest-performing $20\%$ of agents clone themselves. The parent halves its energy pool to supply the child with a matching baseline capital pool.
-5.  **Genetic Drift Mutation**: During cloning, there is a $12\%$ probability that the child's $G1$ (Altruism) and $G2$ (Forgiveness) genes shift up or down by a random offset ($\pm 0.125$). The child retains the exact `lineageCode` of the parent, enabling cross-generational family tracking.
+This cycle repeats indefinitely, allowing strategies to evolve under selective pressure.
+
+### Environmental Pheromone Memory
+
+Agents leave behind invisible chemical footprints when they cooperate or defect. These pheromones diffuse across a low-resolution grid and slowly evaporate. An agent standing in an area heavily saturated with "defection pheromones" may become more likely to defect itself—a simple form of spatial culture.
 
 ---
 
-## 6. Algorithmic Central Bank Interventions
+## Dashboard Layout
 
-During the selection phase, the engine calculates the system's **Gini Coefficient** index ($G$) to measure wealth inequality:
+The simulation runs in a **three-column research dashboard**:
 
-$$G = \frac{\sum_{i=1}^{n} \sum_{j=1}^{n} |x_i - x_j|}{2n^2\mu}$$
+### Left Panel — Theory & Configuration
+- Mathematical specification of the model (genome, spatial signals) rendered with LaTeX.
+- **Campaign Preset** buttons to load pre-built scenarios.
+- Explanatory prose detailing the underlying mechanics.
 
-Where $x$ represents individual agent energy asset values, $n$ is the active population count, and $\mu$ is the mean energy score. The central bank uses this metric to automate macroeconomic policies based on its active mode:
+### Center Panel — The Sandbox
+- A **620×620 canvas** where agents move, collide, and evolve.
+- **System Oracle**: A real-time narrative commentary on the state of the economy (e.g., "CRIMSON DOMINANCE // Exploitative strategies oversaturating local vectors").
+- **Control Bar**: Play/Pause, simulation speed (1×–5×), and **God Mode** crisis buttons.
 
-### Quantitative Easing (QE) Mode
-If the Gini inequality score climbs past $0.50$ and the `bankReserveEscrow` vault contains over $20$ units of currency:
-*   The bank takes $60\%$ of its capital reserves and divides it equally among the bottom $20\%$ of agents.
-*   This mechanism injects liquidity directly into resource-depleted populations to prevent systemic collapse and high extinction rates at the start of the next generation.
-
-### Austerity Mode
-The bank hoards asset pools to hedge against absolute population depletion:
-*   If the system falls below a critical population floor ($< 35$ agents) and the bank holds over $50$ capital units, it releases $70\%$ of its vault reserves as an emergency structural dividend divided equally across all surviving agents.
-*   Otherwise, the bank extracts an additional $2\%$ wealth tax from every agent's asset balance to build safety reserves, letting inequality rise to secure the bank's liquidity.
-
----
-
-## 7. Real-Time Telemetry Dashboard Suite
-
-The interface processes analytics panels every frame call to visualize real-time macro-dynamics:
-
-*   **Lorenz Wealth Curve Canvas**: Maps the cumulative share of energy assets held by the cumulative share of the population. A straight 45-degree line indicates absolute parity, while the lower dark curve plots real inequality. The gap between them scales dynamically with the calculated Gini index.
-*   **Genetic Cladogram Workspace**: Aggregates the `lineageCode` of all active agents, filters the top 5 dominant maternal strains, and draws structural phylogenetic line charts indicating their active percentage share of the ecosystem.
-*   **Lotka-Volterra Phase Space Orbit**: Tracks the relationship between cooperative strategies (Generous + Copycat) along the X-axis and predatory strategies (Cheaters) along the Y-axis. It draws a 200-point parametric trajectory line that maps population shifts between prey (cooperators) and predators (defectors).
+### Right Panel — Telemetry & Diagnostics
+- Live metrics: generation number, Gini coefficient, population, central bank reserves, tax rate, aggregate debt.
+- **Strategy Demographics** with interactive hover filtering (highlight only one strategy on the canvas).
+- **Central Bank Console** with autonomous QE/Austerity policies and a scrolling terminal log.
+- Four miniature diagnostic charts:
+  - **Lorenz Curve** (wealth inequality)
+  - **Lineage Cladogram** (top surviving genetic strains)
+  - **Foraging Saturation vs. Kinetic Activity** (placeholder)
+  - **Lotka-Volterra Phase Trajectory** (cooperator vs. defector orbit over time)
 
 ---
 
-## 8. Built-in Simulation Presets
+## Features
 
-The sandbox includes four configuration profiles to test behavior under different conditions:
+### God Mode Interventions
+Three buttons let you play macro-level crisis designer:
+- **Induce Thermodynamic Famine**: Instantly wipes 70% of all agent energy reserves.
+- **Inject Ideological Mutation**: Forces 60% of agents to become extreme Cheaters with a shared "Plague" lineage.
+- **Reinitialize System Matrix**: Full reset to default starting conditions.
 
-1.  **Standard Spectrum Baseline**: Launches a balanced, random distribution of genes across the ecosystem.
-2.  **Tragedy of the Commons**: Spawns $90\%$ pure cooperators and $10\%$ aggressive defectors, demonstrating how quickly unpunished predatory strategies can deplete mutual resource networks.
-3.  **Late-Stage Capitalist Drift**: Sets all agents to a low starting capital pool ($10$ energy) and forces the Central Bank into **Austerity Mode**, showing how resource scarcity affects cooperation.
-4.  **Cooperative Trust Loop**: Places a high-density cluster of pure Copycat agents in the center of the canvas, demonstrating how local spatial clustering can shield cooperative lineages from external exploitation.
+### Campaign Presets
+Quickly load four distinct socio-economic scenarios:
+1. **Standard Baseline Spectrum** – Random initial strategies.
+2. **The Tragedy of the Commons** – 90% cooperators, 10% defectors. Watch how fast the commons collapse.
+3. **Late-Stage Capitalist Corridor** – Low starting capital, austerity enforced. Inequality skyrockets immediately.
+4. **The Fragile Utopian Loop** – 60% of agents are Copycats clustered in the center. Can trust survive without enforcement?
+
+### Autonomous Central Bank
+A built-in AI fiscal policy engine monitors inequality and population health:
+- **QE Mode (Quantitative Easing)**: If the Gini coefficient exceeds 0.50, the bank injects 60% of its reserves into the poorest 20% of agents.
+- **Austerity Mode**: The bank hoards reserves and siphons 2% of all agent energy each generation. Only releases emergency stimulus if the population crashes below 35 agents.
+- The tax rate on every interaction (6% by default) feeds the central escrow pool.
+
+### Interactive Legend Filtering
+Hover over any strategy name in the telemetry panel to dim all other agents on the canvas—instantly seeing where Cooperators, Cheaters, or Copycats are concentrated.
+
+### Real-Time Diagnostic Charts
+Four continuously updated mini-graphs track the system's health:
+- **Lorenz Curve**: Visualizes wealth inequality against the line of perfect equality.
+- **Lineage Cladogram**: Shows the most common genetic family trees and their population share.
+- **Phase Trajectory**: Plots the ratio of cooperators to defectors over time in a predator-prey phase space, revealing cyclic dynamics.
+
+---
+
+## How to Run Locally
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/phenotype-abm.git
+   cd phenotype-abm
+2. Open `index.html` in any modern browser. No build step, no dependencies (except MathJax loaded via CDN for equation rendering).
+3. The simulation starts automatically. Use the controls to pause, change speed, or trigger God Mode events.
+
+### Technology Stack
+* **HTML5 Canvas:** For high-performance 2D rendering.
+* **Vanilla JavaScript (ES6+):** With no frameworks.
+* **CSS Grid & Flexbox:** For the three-column dashboard.
+* **MathJax:** For LaTeX equation display in the theory panel.
+
+The entire project is a single-page application with zero external runtime dependencies beyond the MathJax CDN script.
+
+### Why This Matters
+Most people learn the Prisoner's Dilemma as a static 2×2 table in a textbook. Phenotype makes it spatial, temporal, and visual. It lets you ask:
+
+* Under what conditions does cooperation become evolutionarily stable?
+* How does inequality emerge from simple individual interactions?
+* Can fiscal policy (QE vs. austerity) prevent systemic collapse?
+* What happens when you inject a crisis into a balanced ecosystem?
+
+This is a sandbox for questions that algebra alone cannot answer.
+
+### Repository Structure
+phenotype-abm/
+├── index.html   # Semantic structural wrappers & canvas DOM mounting
+├── style.css    # Typography architecture and print-editorial color palettes
+├── app.js       # Vector math, matrix logic, and frame rendering engine
+└── README.md    # Theoretical documentation and deployment maps
