@@ -1,92 +1,111 @@
 # Phenotype: An Evolutionary Agent-Based Model (ABM)
 
-## What This Is
+An open-source computational sandbox translating game theory and evolutionary dynamics into fluid visual simulation.
 
-Phenotype is a computational sandbox for exploring game theory, evolutionary dynamics, and institutional economics through spatial agent-based simulation.
+**Live Sandbox:** [Deploying Soon]
 
-**The Big Question:** How do cooperation and defection compete when agents are spatial, resources vary, institutions intervene, and evolution shapes behavior?
+---
 
-## How to Run
+## Core Simulation Concepts
 
-1. Open `index.html` in a modern browser
-2. Simulation starts automatically
-3. Watch agents evolve, interact, and form strategies
+### The Prisoner's Dilemma (Iterated)
 
-## Key Features
+When two agents meet, they each decide to **Cooperate** or **Defect** without knowing the other's choice. Their payoffs follow this classic matrix:
 
-### Spatial Game Theory
-- Agents move randomly across a 2D grid
-- Collisions trigger Prisoner's Dilemma interactions
-- Each agent carries genetic traits that shape behavior
+| Agent A | Agent B | A's payoff | B's payoff |
+|:---|:---|:---|:---|
+| Cooperate | Cooperate | +3.0 | +3.0 |
+| Cooperate | Defect    | 0.0  | +5.0 |
+| Defect    | Cooperate | +5.0 | 0.0  |
+| Defect    | Defect    | +1.0 | +1.0 |
 
-### Evolutionary Dynamics
-- Agents reproduce based on fitness (energy)
-- Genetic mutation creates variation
-- Natural selection drives strategy evolution
-- Lineage tracking shows which families survive
+Agents remember past encounters (Copycats use this memory) and can adjust their behavior based on local chemical signals left by others.
 
-### Macroeconomic Systems
-- Taxation system (agents pay % of payoffs)
-- Central bank with two policy regimes (QE vs Austerity)
-- Emergency interventions when inequality spikes
-- Terminal logs show real-time policy decisions
+### Strategy Phenotypes
 
-### Spatial Memory
-- Pheromone grid tracks local cooperation/defection history
-- Agents sense environment and adjust behavior
-- Creates "cultural landscapes" of trust/betrayal
+Every agent carries a set of continuous genetic parameters that map to one of three observable strategies:
 
-### Pre-Built Scenarios
-**Standard Baseline** - Balanced initial distribution
-**Tragedy of Commons** - Can cooperators resist defectors?
-**Late-Stage Capitalist** - Does inequality destabilize society?
-**Fragile Utopia** - Can isolated cooperators thrive without defectors?
+| Strategy | Behavior | Color |
+|:---|:---|:---|
+| **The Cheater (Defector)** | Always defects. Maximizes short-term gains but risks system collapse if too many exploit cooperators. | Red |
+| **The Generous (Cooperator)** | Always cooperates. Thrives in trusting clusters but is vulnerable to exploitation by cheaters. | Green |
+| **The Copycat (Tit-for-Tat)** | Starts by cooperating, then mirrors the opponent's last move. Enforces accountability without aggression. | Blue |
 
-## Understanding the Telemetry
+An agent's genome also includes **forgiveness** (how likely it is to forgive past defections) and a **desperation threshold**—if energy drops below this limit, even a cooperator will defect to survive.
 
-**Generation** - Timestep counter (increment every 500 frames)
+### Generations and Evolution
 
-**Gini Coefficient** - Inequality measure
-- 0.0 = perfect equality
-- 1.0 = one agent has everything
-- Watch how policy and strategy mix affect inequality
+Every 500 simulation frames, a **generation** ends:
 
-**Population** - Living agents
-- Watch crashes/booms based on strategy dominance
+1. **Bottom 20%** of agents (by energy) are **pruned**.
+2. **Top 20%** replicate, passing their genes (and lineage codes) to offspring.
+3. A **12% mutation rate** introduces random variations in altruism and forgiveness, mimicking genetic drift.
 
-**Central Escrow Pool** - Tax revenue collected by the bank
+This cycle repeats indefinitely, allowing strategies to evolve under selective pressure.
 
-**Adaptive AI Tax Rate** - Can be toggled between manual/auto
+### Environmental Pheromone Memory
 
-**Strategy Demographics** - % of population in each strategy
-- Cheater (red) - Always defects, exploits
-- Generous (green) - Always cooperates, trusts
-- Copycat (blue) - Mimics opponent's last move
+Agents leave behind invisible chemical footprints when they cooperate or defect. These pheromones diffuse across a low-resolution grid and slowly evaporate. An agent standing in an area heavily saturated with "defection pheromones" may become more likely to defect itself—a simple form of spatial culture.
 
-**Lorenz Curve** - Visualizes wealth distribution
-- Straight line = equality
-- Curved = inequality growing
+---
 
-**Lineage Cladogram** - Shows which genetic families survive
+## Dashboard Layout
 
-**Phase Orbit** - Predator-prey dynamics (Lotka-Volterra)
-- Watch how Cooperators vs Defectors balance over time
+The simulation runs in a **three-column research dashboard**:
 
-## Interactive Controls
+### Left Panel — Theory & Configuration
+- Mathematical specification of the model (genome, spatial signals) rendered with LaTeX.
+- **Campaign Preset** buttons to load pre-built scenarios.
+- Explanatory prose detailing the underlying mechanics.
 
-**Pause/Resume** - Freeze time to examine specific generation
+### Center Panel — The Sandbox
+- A **620×620 canvas** where agents move, collide, and evolve.
+- **System Oracle**: A real-time narrative commentary on the state of the economy (e.g., "CRIMSON DOMINANCE // Exploitative strategies oversaturating local vectors").
+- **Control Bar**: Play/Pause, simulation speed (1×–5×), and **God Mode** crisis buttons.
 
-**Simulation Speed** - 1x to 5x (accelerate to see 1000+ generations)
+### Right Panel — Telemetry & Diagnostics
+- Live metrics: generation number, Gini coefficient, population, central bank reserves, tax rate, aggregate debt.
+- **Strategy Demographics** with interactive hover filtering (highlight only one strategy on the canvas).
+- **Central Bank Console** with autonomous QE/Austerity policies and a scrolling terminal log.
+- Four miniature diagnostic charts:
+  - **Lorenz Curve** (wealth inequality)
+  - **Lineage Cladogram** (top surviving genetic strains)
+  - **Foraging Saturation vs. Kinetic Activity** (placeholder)
+  - **Lotka-Volterra Phase Trajectory** (cooperator vs. defector orbit over time)
 
-**Policy Toggle** - Switch between QE and Austerity
-- QE: Auto-redistribute to prevent inequality spirals
-- Austerity: Hoard reserves, intervene only in catastrophe
+---
 
-**Induce Famine** - Wipe out 70% of resources (test system resilience)
+## Features
 
-**Inject Mutation** - Force 50% of population to become defectors (test cascades)
+### God Mode Interventions
+Three buttons let you play macro-level crisis designer:
+- **Induce Thermodynamic Famine**: Instantly wipes 70% of all agent energy reserves.
+- **Inject Ideological Mutation**: Forces 60% of agents to become extreme Cheaters with a shared "Plague" lineage.
+- **Reinitialize System Matrix**: Full reset to default starting conditions.
 
-**Reinitialize** - Reset to generation 1
+### Campaign Presets
+Quickly load four distinct socio-economic scenarios:
+1. **Standard Baseline Spectrum** – Random initial strategies.
+2. **The Tragedy of the Commons** – 90% cooperators, 10% defectors. Watch how fast the commons collapse.
+3. **Late-Stage Capitalist Corridor** – Low starting capital, austerity enforced. Inequality skyrockets immediately.
+4. **The Fragile Utopian Loop** – 60% of agents are Copycats clustered in the center. Can trust survive without enforcement?
+
+### Autonomous Central Bank
+A built-in AI fiscal policy engine monitors inequality and population health:
+- **QE Mode (Quantitative Easing)**: If the Gini coefficient exceeds 0.50, the bank injects 60% of its reserves into the poorest 20% of agents.
+- **Austerity Mode**: The bank hoards reserves and siphons 2% of all agent energy each generation. Only releases emergency stimulus if the population crashes below 35 agents.
+- The tax rate on every interaction (6% by default) feeds the central escrow pool.
+
+### Interactive Legend Filtering
+Hover over any strategy name in the telemetry panel to dim all other agents on the canvas—instantly seeing where Cooperators, Cheaters, or Copycats are concentrated.
+
+### Real-Time Diagnostic Charts
+Four continuously updated mini-graphs track the system's health:
+- **Lorenz Curve**: Visualizes wealth inequality against the line of perfect equality.
+- **Lineage Cladogram**: Shows the most common genetic family trees and their population share.
+- **Phase Trajectory**: Plots the ratio of cooperators to defectors over time in a predator-prey phase space, revealing cyclic dynamics.
+
+---
 
 ## What Questions Can This Answer?
 
@@ -127,18 +146,6 @@ Phenotype is a computational sandbox for exploring game theory, evolutionary dyn
 
 **With Spatial Pheromones:** Local clusters of trust/betrayal emerge
 
-## Technical Implementation
-
-**No external dependencies** - Pure vanilla JavaScript, HTML5 Canvas
-
-<<<<<<< HEAD
-**Performance optimized:**
-- Spatial collision grid (O(n) instead of O(n²))
-- Pheromone diffusion (reaction-diffusion equations)
-- Real-time Gini calculation
-
-**150 agents rendering at 60fps with full evolutionary dynamics**
-
 ## Why This Matters
 
 The Prisoner's Dilemma is usually studied in textbooks as a static payoff matrix.
@@ -153,5 +160,3 @@ But real life is:
 Phenotype makes all of this visible and interactive.
 
 You can watch cooperation and defection compete under realistic constraints. You can see how institutions shape strategy evolution. You can test policy interventions and watch system-wide consequences unfold.
-
----
