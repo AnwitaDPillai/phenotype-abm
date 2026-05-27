@@ -141,10 +141,3 @@ Most people learn the Prisoner's Dilemma as a static 2×2 table in a textbook. P
 * What happens when you inject a crisis into a balanced ecosystem?
 
 This is a sandbox for questions that algebra alone cannot answer.
-
-### Repository Structure
-phenotype-abm/
-├── index.html   # Semantic structural wrappers & canvas DOM mounting
-├── style.css    # Typography architecture and print-editorial color palettes
-├── app.js       # Vector math, matrix logic, and frame rendering engine
-└── README.md    # Theoretical documentation and deployment maps
