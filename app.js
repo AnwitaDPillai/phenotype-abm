@@ -572,12 +572,6 @@ function flushTelemetryUI(gini) {
     processPhaseSpaceOrbit(generous + copycats, cheaters);
 }
 
-function pushTerminalLog(message) {
-    const logBox = document.getElementById('fedTerminalLog');
-    logBox.innerHTML += `<br>${message}`;
-    logBox.scrollTop = logBox.scrollHeight; // Auto anchor scroll track to follow new updates
-}
-
 // ============================================================================
 // --- 9. ENGINE RUNTIME CLOCK MECHANISM LOOP ---------------------------------
 // ============================================================================
@@ -621,7 +615,7 @@ function reinitializeEcosystem() {
 reinitializeEcosystem();
 
 // ============================================================================
-// --- 10. CONTROLLER WIRE EVENTS INTEGRATIONS --------------------------------
+// --- 10. CONTROLLER WIRE EVENTS INTEGRATIONS (MOBILE HARDENED) --------------
 // ============================================================================
 document.getElementById('btnPause').addEventListener('click', (e) => {
     isSimulationPaused = !isSimulationPaused;
@@ -673,13 +667,36 @@ document.getElementById('simReset').addEventListener('click', () => {
 });
 
 // Interactive Live Legend Ticker Hover Highlighting Handlers
+const supportsHover = window.matchMedia('(hover: hover)').matches;
+
 document.querySelectorAll('.demo-row').forEach(element => {
-    element.addEventListener('mouseenter', (e) => {
-        activeHoverArchetype = e.currentTarget.getAttribute('data-archetype');
-    });
-    element.addEventListener('mouseleave', () => {
+    if (supportsHover) {
+        // Desktop Paths: Clean mouseenter/mouseleave highlighting loops
+        element.addEventListener('mouseenter', (e) => {
+            activeHoverArchetype = e.currentTarget.getAttribute('data-archetype');
+        });
+        element.addEventListener('mouseleave', () => {
+            activeHoverArchetype = null;
+        });
+    } else {
+        // Mobile Paths: Click once to safely toggle sticky focus without capturing touch gestures
+        element.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const targetType = e.currentTarget.getAttribute('data-archetype');
+            if (activeHoverArchetype === targetType) {
+                activeHoverArchetype = null;
+            } else {
+                activeHoverArchetype = targetType;
+            }
+        });
+    }
+});
+
+// Global tap listener to release filters when hitting neutral layout space on mobile
+document.addEventListener('click', () => {
+    if (!supportsHover) {
         activeHoverArchetype = null;
-    });
+    }
 });
 
 // --- 11. TIME-PARADIGM CAMPAIGN CONFIGURATIONS SELECTORS ---

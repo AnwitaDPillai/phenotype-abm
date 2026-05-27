@@ -1,4 +1,6 @@
-/* --- 1. SYSTEM CORES & DESIGN VARIABLES --- */
+/* ==========================================================================
+   1. SYSTEM CORES & DESIGN VARIABLES
+   ========================================================================== */
 :root {
     --bg-ivory: #f1efe9;
     --surface-white: #ffffff;
@@ -32,7 +34,9 @@ body {
     letter-spacing: -0.01em;
 }
 
-/* --- 2. THREE-COLUMN DASHBOARD MASTER GRID --- */
+/* ==========================================================================
+   2. THREE-COLUMN DASHBOARD MASTER GRID
+   ========================================================================== */
 .dashboard-grid {
     display: grid;
     grid-template-columns: 350px 1fr 340px;
@@ -59,7 +63,9 @@ body {
     border-radius: 2px;
 }
 
-/* --- 3. COLUMN 1: INTELLECTUAL SPECIFICATIONS --- */
+/* ==========================================================================
+   3. COLUMN 1: INTELLECTUAL SPECIFICATIONS
+   ========================================================================== */
 .theory-panel {
     background-color: var(--bg-ivory);
 }
@@ -161,8 +167,8 @@ body {
     margin: 0.8rem 0;
     color: var(--text-charcoal);
     max-width: 100%;
-    overflow-x: visible;
-    overflow-y: visible;
+    overflow-x: auto;
+    overflow-y: hidden;
     white-space: normal;
     word-break: break-word;
     box-sizing: border-box;
@@ -173,13 +179,15 @@ body {
     display: inline-block !important;
     max-width: 100% !important;
     white-space: normal !important;
-    overflow-x: visible !important;
-    overflow-y: visible !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
     text-align: left !important;
     box-sizing: border-box;
 }
 
-/* --- 4. COLUMN 2: PRIMARY VISUAL KINETIC FIELD --- */
+/* ==========================================================================
+   4. COLUMN 2: PRIMARY VISUAL KINETIC FIELD
+   ========================================================================== */
 .simulation-panel {
     background-color: #faf9f6; /* Clinical bone background */
     display: flex;
@@ -234,12 +242,16 @@ body {
     background-color: var(--surface-white);
     line-height: 0;
     border-radius: 2px;
+    width: 100%;
+    max-width: 620px;
+    display: flex;
+    justify-content: center;
 }
 
 .main-sim-container canvas {
     max-width: 100%;
+    width: 100%;
     height: auto;
-    /* Stylized conceptual frame for physical obstacles and resource clusters */
     background: #fdfdfb;
 }
 
@@ -311,7 +323,9 @@ body {
     color: var(--bg-ivory);
 }
 
-/* --- 5. COLUMN 3: REAL-TIME TELEMETRY SUITE --- */
+/* ==========================================================================
+   5. COLUMN 3: REAL-TIME TELEMETRY SUITE
+   ========================================================================== */
 .telemetry-panel {
     border-right: none;
     background-color: #eae7df; /* Deep statistics ivory tone */
@@ -608,3 +622,172 @@ body {
 /* Utility Helpers */
 .monospace { font-family: monospace; }
 .text-bold { font-weight: bold; }
+
+/* ==========================================================================
+   6. MOBILE ARCHITECTURE ENHANCEMENTS & RESPONSIVE BREAKPOINT
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+    /* 1. Reset root webpage container environments to a standard long fluid text layout */
+    html {
+        height: auto !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+
+    body {
+        height: auto !important;
+        min-height: 100vh !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        position: relative !important;
+    }
+
+    /* 2. FORCE LINEAR ARCHITECTURE FROM THE ROOT CONTAINER DOWNWARD */
+    .dashboard-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
+        max-height: none !important;
+        min-height: 100vh !important;
+        width: 100vw !important;
+        overflow: visible !important;
+    }
+
+    /* 3. HARD RESET SEMANTIC TAG ARCHITECTURE WITH FLEX FLOW MECHANICS */
+    main, 
+    aside,
+    .panel,
+    .theory-panel,
+    .simulation-panel,
+    .telemetry-panel {
+        display: flex !important;
+        flex-direction: column !important;
+        position: relative !important;
+        height: auto !important;
+        max-height: none !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+        
+        /* Box model configurations */
+        width: 100% !important;
+        border-right: none !important;
+        border-bottom: 1px solid var(--border-line) !important;
+        padding: 1.5rem 1.25rem !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 4. PHYSICAL LAYOUT REORDER MAPPING COORDINATES (Canvas -> Text Abstract -> Demographics) */
+    .simulation-panel {
+        order: 1 !important; /* Moves running HTML5 sandbox cleanly to the top position */
+        background-color: #faf9f6 !important;
+        padding: 1rem 0.75rem !important;
+    }
+    
+    .theory-panel {
+        order: 2 !important; /* Plugs structural writeups in the middle row track */
+        background-color: var(--bg-ivory) !important;
+    }
+    
+    .telemetry-panel {
+        order: 3 !important; /* Anchors sub-canvases and chart diagnostics at the absolute base */
+        border-bottom: none !important;
+        background-color: #eae7df !important;
+    }
+
+    /* 5. INPUT EVENT PASS-THROUGH VALVE */
+    .canvas-container,
+    .main-sim-container canvas {
+        touch-action: pan-y !important; /* Tells mobile viewport: pass vertical swipe patterns to the core browser scroll framework */
+    }
+
+    /* 6. FLUID CONTAINER INTERFACE SCALING LAYOUTS */
+    .oracle-container,
+    .control-bar {
+        max-width: 100% !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    .canvas-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        margin-bottom: 0.75rem !important;
+        display: flex !important;
+        justify-content: center !important;
+    }
+
+    .main-sim-container canvas {
+        width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 1 / 1 !important; /* Keeps the simulation square field layout intact */
+    }
+
+    /* 7. ACCESSIBLE SLIDER MECHANICS & EXPANDED BUTTON TOUCH TARGETS */
+    .time-controls {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+        align-items: stretch !important;
+    }
+
+    .slider-group {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+
+    .slider-group input[type="range"] {
+        width: 55% !important;
+        height: 24px !important; /* Easier calibration access on phone screens */
+    }
+
+    .action-buttons {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        gap: 0.4rem !important;
+    }
+
+    .btn, .btn-preset, .btn-toggle {
+        min-height: 44px !important; /* Standard layout tap metrics rule criteria */
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 0.78rem !important;
+        flex: 1 1 calc(50% - 0.4rem) !important; /* Stacks interactive buttons neatly in grids on small frames */
+    }
+
+    /* 8. COMPACT RESPONSIVE VISUAL TYPOGRAPHY PROFILE */
+    .brand-header h1 {
+        font-size: 1.75rem !important;
+        letter-spacing: 0.04em !important;
+    }
+
+    .prose-block p {
+        text-align: left !important;
+    }
+
+    /* 9. SUB-DIAGNOSTIC CHART SCREEN ADAPTATIONS */
+    .metric-container {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important; /* Maps telemetry outputs cleanly into two symmetric grid structures */
+        gap: 0.6rem !important;
+    }
+
+    .diagnostic-grid-layout {
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
+        width: 100% !important;
+    }
+
+    .canvas-container.diagnostic-container {
+        height: 100px !important;
+        width: 100% !important;
+        display: flex !important;
+    }
+}
