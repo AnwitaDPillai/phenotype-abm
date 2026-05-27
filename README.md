@@ -17,7 +17,7 @@ An open-source computational sandbox translating game theory and evolutionary dy
 <br>
 
 <!-- The Video -->
-<video width="700" controls>
+<video width="700" controls muted autoplay playsinline>
   <source src="assets/Phenotype.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video>
